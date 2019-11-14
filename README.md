@@ -93,13 +93,17 @@ yarn run build
 
 During plugin registration, ``router`` must be passed in. Optionally
 a global ``debounce`` can be set, the default if unset is 100ms. 
+ 
 
 ```javascript
 import QuerySupport from '@oarepo/vue-query-synchronizer'
 
 Vue.use(QuerySupport, {
     router: router,
-    debounce: 100
+    debounce: 100,
+    datatypes: {
+        name: handler
+    }
 })
 ```
 
@@ -107,20 +111,67 @@ Vue.use(QuerySupport, {
 
 ``paramsList`` is a list of query parameters that should be captured
 by the library and synchronized with the component. A member of the list
-can be either string (as seen in the example above) or an object:
+can be either string (as seen in the example above) string annotated with
+ datatype ('page:number') or an object:
 
 ```javascript
 {
     name: 'search',
-    debounce: 1000
+    debounce: 1000,
+    datatype: 'string',
+    default: null
 }
 ``` 
 If the object defines ``debounce`` property, it will be used instead of the default
 value.
+
+The object can define a datatype, which is implicitly string. The datatype
+defines how the value from URL is converted to model and vice versa. Datatypes
+are pluggable, see ``Datatype`` section later in the readme for details. 
+
+If ``default`` is set and a value is not present in the URL, the model
+is set to this value. URL is not changed. When a default value is 
+programmatically set on the parameter (for example, user enters it in input),
+the parameter is removed from the url.  
 
 Optional parameter ``extraParams`` contains any extra params 
 that you would normally put directly under ``props``.
 The parameter can be either an object or a function taking ``route`` and 
 returning an object.
 
+### ``Datatype``
 
+A datatype provides means to convert url parameter into an internal model
+value and vice versa. The pre-installed datatypes are:
+   * string - a no-op converter
+   * number - converts string value of the number in url into a javascript number
+   * bool - if the parameter is present (with whatever value), returns true else false
+   
+A custom datatype can be implemented as follows:
+
+```javascript
+
+Vue.use(QuerySupport, {
+    router: router,
+    datatypes: {
+        lowecase: {
+            fromURL(value, defaultValue) {
+                // value is: undefined if property is not present in the url
+                // null if property is in url but without a value
+                // string value if property is written as url?key=value 
+                return value ? value.lowercase() : defaultValue 
+            },
+            toURL (value, defaultValue) {
+                // this method must return undefined, null or string instance
+                // returning undefined will remove the property from query
+                if (value === defaultValue) { return undefined }
+                // returning null will put url?key without a value to the url
+                if (value === '') { return null }
+                // will put url?key=value into the url
+                return value 
+            }
+        }
+    }
+})
+
+```
