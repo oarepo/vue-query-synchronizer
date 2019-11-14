@@ -113,7 +113,7 @@ Vue.use(QuerySupport, {
 by the library and synchronized with the component. A member of the list
 can be either string (as seen in the example above), string annotated with
  a datatype (``number:page``), string annotated with
-a datatype and a default value(``number:page:default``) or an object:
+a datatype and a default value(``number:page:1``) or an object:
 
 ```javascript
 {
