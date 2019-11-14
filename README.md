@@ -103,9 +103,12 @@ Vue.use(QuerySupport, {
     debounce: 100,
     datatypes: {
         name: handler
-    }
+    },
+    debug: false
 })
 ```
+
+Setting ``debug`` to ``true`` will log the parsed and serialized query parameters. 
 
 ### ``query(paramsList, extraParams?)``
 
@@ -120,7 +123,7 @@ a datatype and a default value(``number:page:1``) or an object:
     name: 'search',
     debounce: 1000,
     datatype: 'string',
-    default: null
+    defaultValue: null
 }
 ``` 
 If the object defines ``debounce`` property, it will be used instead of the default
@@ -147,6 +150,7 @@ value and vice versa. The pre-installed datatypes are:
    * string - a no-op converter
    * number - converts string value of the number in url into a javascript number
    * bool - if the parameter is present (with whatever value), returns true else false
+   * array - returns an array of string (for parameters with multiple values)
    
 A custom datatype can be implemented as follows:
 
@@ -156,13 +160,20 @@ Vue.use(QuerySupport, {
     router: router,
     datatypes: {
         lowecase: {
-            fromURL(value, defaultValue) {
+            parse(value, defaultValue, parsingDefaultValue) {
                 // value is: undefined if property is not present in the url
                 // null if property is in url but without a value
-                // string value if property is written as url?key=value 
+                // string value if property is written as url?key=value
+ 
+                // note: defaultValue has been parsed previously so that
+                // it already is in the javascript format
+
+                // this method is called once to parse all default values,
+                // in this run parsingDefaultValue is set to true
+                // so that the datatype might react differently
                 return value ? value.toLowerCase() : defaultValue 
             },
-            toURL (value, defaultValue) {
+            serialize (value, defaultValue) {
                 // this method must return undefined, null or string instance
                 // returning undefined will remove the property from query
                 if (value === defaultValue) { return undefined }

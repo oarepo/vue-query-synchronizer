@@ -8,17 +8,17 @@ const $options = {}
 // supposes that the queryObject contains __schedule_update(key, value, extra)
 // method
 //
-function defineProperty (queryObject, key, query, extra) {
+function defineProperty (queryObject, key, value, definition) {
     Object.defineProperty(queryObject, key, {
         get: function () {
             return this['_' + key]
         },
         set: function (value) {
             this['_' + key] = value
-            this.__schedule_update(key, value, extra)
+            this.__schedule_update(definition, value)
         }
     })
-    queryObject['_' + key] = query[key] || null
+    queryObject['_' + key] = value || null
 }
 
 //
@@ -35,6 +35,21 @@ function isFunction (obj) {
     return !!(obj && obj.constructor && obj.call && obj.apply)
 }
 
+// https://gomakethings.com/how-to-check-if-two-arrays-are-equal-with-vanilla-js/
+function arraysMatch (arr1, arr2) {
+
+    // Check if the arrays are the same length
+    if (arr1.length !== arr2.length) return false
+
+    // Check if all items exist and are in the same order
+    for (var i = 0; i < arr1.length; i++) {
+        if (arr1[i] !== arr2[i]) return false
+    }
+
+    // Otherwise, return true
+    return true
+
+}
 //
 // creates reactive query object
 //
@@ -48,9 +63,17 @@ function makeQueryObject (query, params) {
         __timer: undefined,
 
         // schedules an update
-        __schedule_update: function (key, value, extra) {
+        __schedule_update: function (definition, value) {
+            const key = definition.name
+            if ($options.debug) {
+                console.log('definition is', definition, 'default value is', definition.parsedDefaultValue, 'value', value)
+            }
             // sets the value in the internal list of updated values (more than one value might be updated in debounce)
-            this.__updates[key] = value
+            this.__updates[key] =
+                $options.datatypes[definition.datatype].serialize(value, definition.parsedDefaultValue)
+            if ($options.debug) {
+                console.log('serialized value is', this.__updates[key])
+            }
 
             // if debounce timer is running, kill it
             if (this.__timer !== undefined) {
@@ -68,7 +91,7 @@ function makeQueryObject (query, params) {
                     // push it to query. If not set, remove it from query
                     Object.keys(this.__updates).forEach(k => {
                         const val = this.__updates[k]
-                        if (val) {
+                        if (val || val === null) {
                             _query[k] = val
                         } else if (_query[k] !== undefined) {
                             delete _query[k]
@@ -79,13 +102,23 @@ function makeQueryObject (query, params) {
                     this.__timer = null
                 },
                 // take the debounce from the query parameter or use the default one
-                extra.debounce || $options.debounce
+                definition.debounce || $options.debounce
             )
         }
     }
 
     for (const key of params) {
-        defineProperty(queryObject, key.name, query, key)
+        if (key.parsedDefaultValue === undefined) {
+            key.parsedDefaultValue = $options.datatypes[key.datatype].parse(key.defaultValue, null, true)
+        }
+        if ($options.debug) {
+            console.log('definition is', key, 'default value is', key.parsedDefaultValue, 'query value', query[key.name])
+        }
+        const value = $options.datatypes[key.datatype].parse(query[key.name], key.parsedDefaultValue)
+        if ($options.debug) {
+            console.log('parsed value is', value)
+        }
+        defineProperty(queryObject, key.name, value, key)
     }
     return queryObject
 }
@@ -100,9 +133,20 @@ function query (params, extra) {
     // convert string query param names to object form
     params = params.map(x => {
         if (!isObject(x)) {
-            x = {
-                name: x
+            x = x.split(':')
+            if (x.length === 1) {
+                x = ['string', x[0], null]
+            } else if (x.length === 2) {
+                x.push(null)
             }
+            x = {
+                name: x[1],
+                datatype: x[0],
+                defaultValue: x[2]
+            }
+        }
+        if (x.datatype === undefined) {
+            x.datatype = 'string'
         }
         return x
     })
@@ -135,5 +179,61 @@ export default {
             ...options
         }
         Object.assign($options, options)
+        $options.datatypes = {
+            'string': {
+                parse (value, defaultValue) {
+                    if (value === undefined) {
+                        return defaultValue
+                    }
+                    if (value && typeof value !== 'string') {
+                        console.error('Incorrect variable for parameter, expecting string, got', value)
+                        return defaultValue
+                    }
+                    return value || ''
+                },
+                serialize (value, defaultValue) {
+                    return value === defaultValue ? undefined : value
+                }
+            },
+            'number': {
+                parse (value, defaultValue) {
+                    if (value === undefined || value === null) {
+                        return defaultValue
+                    }
+                    value = parseInt(value)
+                    if (isNaN(value)) {
+                        return defaultValue
+                    }
+                    return value
+                },
+                serialize (value, defaultValue) {
+                    value = parseInt(value || 0)
+                    return value === defaultValue ? undefined : value.toString()
+                }
+            },
+            'bool': {
+                parse (value, defaultValue, parsingDefault) {
+                    if (value === undefined || (value === null && parsingDefault)) {
+                        return defaultValue || false
+                    }
+                    return true
+                },
+                serialize (value, defaultValue) {
+                    if (value && value !== defaultValue) {
+                        return null
+                    }
+                    return undefined
+                }
+            },
+            'array': {
+                parse (value, defaultValue) {
+                    return value === undefined ? defaultValue : (value || [])
+                },
+                serialize (value, defaultValue) {
+                    return arraysMatch(value, defaultValue) ? undefined : value
+                }
+            },
+            ...($options.datatypes || {})
+        }
     }
 }

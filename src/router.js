@@ -11,8 +11,17 @@ const routes = [
         name: 'home',
         props: query(
             [
+                // simple form, string parameter
                 'search',
-                { name: 'search2', debounce: 1000 }
+
+                // object form
+                { name: 'search2', debounce: 1000 },
+
+                // number with the default value of 10
+                'number:num:10',
+
+                // checkbox (bool field)
+                'bool:check'
             ],
             {
                 another: 'property passed directly to the component'

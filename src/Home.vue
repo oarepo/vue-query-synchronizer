@@ -19,6 +19,22 @@
                 <input v-model="query.search2"><br><br>
             </td>
         </tr>
+        <tr>
+            <td>
+                Number field with the default value of 10:
+            </td>
+            <td>
+                <input type="number" v-model="query.num"><br><br>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Number field with the default value of 10:
+            </td>
+            <td>
+                <input type="checkbox" v-model="query.check"><br><br>
+            </td>
+        </tr>
     </table>
     <br><br>
     Another property from router, not affected by the addressbar: <code>{{ another }}</code><br><br>
