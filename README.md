@@ -111,8 +111,9 @@ Vue.use(QuerySupport, {
 
 ``paramsList`` is a list of query parameters that should be captured
 by the library and synchronized with the component. A member of the list
-can be either string (as seen in the example above) string annotated with
- datatype ('page:number') or an object:
+can be either string (as seen in the example above), string annotated with
+ a datatype (``number:page``), string annotated with
+a datatype and a default value(``number:page:default``) or an object:
 
 ```javascript
 {
