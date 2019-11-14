@@ -82,6 +82,12 @@ yarn install
 yarn run serve
 ```
 
+### Screenshot
+
+-----------------------------------------------
+![screenshot](public/screenshot.png)
+-----------------------------------------------
+
 ## Library build
 ```
 yarn run build
