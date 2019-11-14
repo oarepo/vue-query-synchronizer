@@ -187,3 +187,9 @@ Vue.use(QuerySupport, {
 })
 
 ```
+
+Default datatypes are implemented by importable ``StringDatatype``, 
+``NumberDatatype``, ``BoolDatatype``, ``ArrayDatatype``.
+
+You can use them to create composite datatypes, for example an array
+of numbers.

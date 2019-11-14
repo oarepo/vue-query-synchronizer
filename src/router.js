@@ -21,7 +21,10 @@ const routes = [
                 'number:num:10',
 
                 // checkbox (bool field)
-                'bool:check'
+                'bool:check',
+
+                // array field
+                'array:option'
             ],
             {
                 another: 'property passed directly to the component'

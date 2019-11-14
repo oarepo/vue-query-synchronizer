@@ -50,6 +50,7 @@ function arraysMatch (arr1, arr2) {
     return true
 
 }
+
 //
 // creates reactive query object
 //
@@ -167,7 +168,70 @@ function query (params, extra) {
     return maker
 }
 
-export { query }
+const StringDatatype = {
+    parse (value, defaultValue) {
+        if (value === undefined) {
+            return defaultValue
+        }
+        if (value && typeof value !== 'string') {
+            console.error('Incorrect variable for parameter, expecting string, got', value)
+            return defaultValue
+        }
+        return value || ''
+    },
+    serialize (value, defaultValue) {
+        return value === defaultValue ? undefined : value
+    }
+}
+
+const NumberDatatype = {
+    parse (value, defaultValue) {
+        if (value === undefined || value === null) {
+            return defaultValue
+        }
+        value = parseInt(value)
+        if (isNaN(value)) {
+            return defaultValue
+        }
+        return value
+    },
+    serialize (value, defaultValue) {
+        value = parseInt(value || 0)
+        return value === defaultValue ? undefined : value.toString()
+    }
+}
+
+const BoolDatatype = {
+    parse (value, defaultValue, parsingDefault) {
+        if (value === undefined || (value === null && parsingDefault)) {
+            return defaultValue || false
+        }
+        return true
+    },
+    serialize (value, defaultValue) {
+        if (value && value !== defaultValue) {
+            return null
+        }
+        return undefined
+    }
+}
+
+const ArrayDatatype = {
+    parse (value, defaultValue) {
+        if (value === undefined) {
+            return defaultValue
+        }
+        if (typeof value === 'string') {
+            return [value]
+        }
+        return value || []
+    },
+    serialize (value, defaultValue) {
+        return arraysMatch(value, defaultValue) ? undefined : value
+    }
+}
+
+export { query, StringDatatype, NumberDatatype, BoolDatatype, ArrayDatatype }
 
 export default {
     install (Vue, options) {
@@ -180,59 +244,10 @@ export default {
         }
         Object.assign($options, options)
         $options.datatypes = {
-            'string': {
-                parse (value, defaultValue) {
-                    if (value === undefined) {
-                        return defaultValue
-                    }
-                    if (value && typeof value !== 'string') {
-                        console.error('Incorrect variable for parameter, expecting string, got', value)
-                        return defaultValue
-                    }
-                    return value || ''
-                },
-                serialize (value, defaultValue) {
-                    return value === defaultValue ? undefined : value
-                }
-            },
-            'number': {
-                parse (value, defaultValue) {
-                    if (value === undefined || value === null) {
-                        return defaultValue
-                    }
-                    value = parseInt(value)
-                    if (isNaN(value)) {
-                        return defaultValue
-                    }
-                    return value
-                },
-                serialize (value, defaultValue) {
-                    value = parseInt(value || 0)
-                    return value === defaultValue ? undefined : value.toString()
-                }
-            },
-            'bool': {
-                parse (value, defaultValue, parsingDefault) {
-                    if (value === undefined || (value === null && parsingDefault)) {
-                        return defaultValue || false
-                    }
-                    return true
-                },
-                serialize (value, defaultValue) {
-                    if (value && value !== defaultValue) {
-                        return null
-                    }
-                    return undefined
-                }
-            },
-            'array': {
-                parse (value, defaultValue) {
-                    return value === undefined ? defaultValue : (value || [])
-                },
-                serialize (value, defaultValue) {
-                    return arraysMatch(value, defaultValue) ? undefined : value
-                }
-            },
+            'string': StringDatatype,
+            'number': NumberDatatype,
+            'bool': BoolDatatype,
+            'array': ArrayDatatype,
             ...($options.datatypes || {})
         }
     }

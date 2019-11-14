@@ -29,10 +29,21 @@
         </tr>
         <tr>
             <td>
-                Number field with the default value of 10:
+                Checkbox:
             </td>
             <td>
                 <input type="checkbox" v-model="query.check"><br><br>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Array (multiple selection, control-click for selecting both values):
+            </td>
+            <td>
+                <select multiple v-model="query.option">
+                    <option value="first">First choice</option>
+                    <option value="second">Second choice</option>
+                </select><br><br>
             </td>
         </tr>
     </table>
