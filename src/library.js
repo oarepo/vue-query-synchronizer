@@ -18,7 +18,7 @@ function defineProperty (queryObject, key, value, definition) {
             this.__schedule_update(definition, value)
         }
     })
-    queryObject['_' + key] = value || null
+    queryObject['_' + key] = value
 }
 
 //
