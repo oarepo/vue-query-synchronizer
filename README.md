@@ -160,7 +160,7 @@ Vue.use(QuerySupport, {
                 // value is: undefined if property is not present in the url
                 // null if property is in url but without a value
                 // string value if property is written as url?key=value 
-                return value ? value.lowercase() : defaultValue 
+                return value ? value.toLowerCase() : defaultValue 
             },
             toURL (value, defaultValue) {
                 // this method must return undefined, null or string instance
@@ -169,7 +169,7 @@ Vue.use(QuerySupport, {
                 // returning null will put url?key without a value to the url
                 if (value === '') { return null }
                 // will put url?key=value into the url
-                return value 
+                return value.toLowerCase()
             }
         }
     }
