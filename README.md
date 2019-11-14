@@ -24,9 +24,9 @@ yarn add @oarepo/vue-query-synchronizer
 Add the following to ``main.js`` (in quasar ``boot/....js``)
 
 ```javascript
-import QuerySupport from '@oarepo/vue-query-synchronizer'
+import QuerySynchronizer from '@oarepo/vue-query-synchronizer'
 
-Vue.use(QuerySupport, {
+Vue.use(QuerySynchronizer, {
     router: router
 })
 ```
@@ -93,16 +93,16 @@ yarn run build
 
 ## API
 
-### ``QuerySupport`` plugin configuration
+### ``QuerySynchronizer`` plugin configuration
 
 During plugin registration, ``router`` must be passed in. Optionally
 a global ``debounce`` can be set, the default if unset is 100ms. 
  
 
 ```javascript
-import QuerySupport from '@oarepo/vue-query-synchronizer'
+import QuerySynchronizer from '@oarepo/vue-query-synchronizer'
 
-Vue.use(QuerySupport, {
+Vue.use(QuerySynchronizer, {
     router: router,
     debounce: 100,
     datatypes: {
@@ -174,7 +174,7 @@ A custom datatype can be implemented as follows:
 
 ```javascript
 
-Vue.use(QuerySupport, {
+Vue.use(QuerySynchronizer, {
     router: router,
     datatypes: {
         lowecase: {
