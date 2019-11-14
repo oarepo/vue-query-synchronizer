@@ -112,6 +112,8 @@ Setting ``debug`` to ``true`` will log the parsed and serialized query parameter
 
 ### ``query(paramsList, extraParams?)``
 
+#### ``paramsList``
+
 ``paramsList`` is a list of query parameters that should be captured
 by the library and synchronized with the component. A member of the list
 can be:
@@ -147,6 +149,8 @@ If ``default`` is set and a value is not present in the URL, the model
 is set to this value. URL is not changed. When a default value is 
 programmatically set on the parameter (for example, user enters it in input),
 the parameter is removed from the url.  
+
+#### ``extraParams``
 
 Optional parameter ``extraParams`` contains any extra params 
 that you would normally put directly under ``props``.
