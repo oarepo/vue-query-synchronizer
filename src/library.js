@@ -30,6 +30,11 @@ function isObject (obj) {
     return type === 'function' || (type === 'object' && !!obj)
 }
 
+// https://jsperf.com/alternative-isfunction-implementations
+function isFunction (obj) {
+    return !!(obj && obj.constructor && obj.call && obj.apply)
+}
+
 //
 // creates reactive query object
 //
@@ -105,8 +110,12 @@ function query (params, extra) {
     // gets called when the route changes
     function maker (route) {
         const createdQuery = makeQueryObject(route.query, params)
+        let extraData = (extra || {})
+        if (isFunction(extraData)) {
+            extraData = extraData(route)
+        }
         return {
-            ...(extra || {}),
+            ...extraData,
             query: createdQuery
         }
     }
