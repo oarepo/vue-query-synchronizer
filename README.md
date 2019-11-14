@@ -1,7 +1,7 @@
 # @oarepo/vue-query-synchronizer
 
 In browser applications, address bar should be the most important source
-of truth. When user performs data filtering, sorting, ..., the url should
+of truth. When user performs data filtering, sorting, pagination, the url should
 change so that the result of the filtering is bookmarkable/shareable.
 
 Traditionally vue component would listen on query change and copy the
