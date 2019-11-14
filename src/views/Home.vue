@@ -1,18 +1,21 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+<div class="home">
+  <br>
+  Write anything here and watch the addressbar:<br>
+  <input :value="query.search" v-on="{input: $updateQuery('search')}"><br><br>
+  <input :value="query.search2" v-on="{input: $updateQuery('search2')}"><br><br>
+  Another property from router, not affected by the addressbar: {{ another }}
+</div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
 
 export default {
   name: 'home',
-  components: {
-    HelloWorld
+  components: {},
+  props: {
+    query: Object,
+    another: String
   }
 }
 </script>
