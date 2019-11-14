@@ -135,6 +135,17 @@ function query (params, extra) {
     params = params.map(x => {
         if (!isObject(x)) {
             x = x.split(':')
+            let debounce = parseInt(x[0])
+            if (isNaN(debounce)) {
+                if (x[0] === '') {
+                    debounce = 0
+                    x.splice(0, 1)
+                } else {
+                    debounce = undefined
+                }
+            } else {
+                x.splice(0, 1)
+            }
             if (x.length === 1) {
                 x = ['string', x[0], null]
             } else if (x.length === 2) {
@@ -143,7 +154,8 @@ function query (params, extra) {
             x = {
                 name: x[1],
                 datatype: x[0],
-                defaultValue: x[2]
+                defaultValue: x[2],
+                debounce
             }
         }
         if (x.datatype === undefined) {
@@ -154,6 +166,9 @@ function query (params, extra) {
 
     // gets called when the route changes
     function maker (route) {
+        if ($options.debug) {
+            console.log('synchronizer definition', params)
+        }
         const createdQuery = makeQueryObject(route.query, params)
         let extraData = (extra || {})
         if (isFunction(extraData)) {
@@ -219,7 +234,7 @@ const BoolDatatype = {
 const ArrayDatatype = {
     parse (value, defaultValue) {
         if (value === undefined) {
-            return defaultValue
+            return defaultValue.slice()
         }
         if (typeof value === 'string') {
             return [value]

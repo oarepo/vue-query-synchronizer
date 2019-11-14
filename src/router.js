@@ -20,11 +20,11 @@ const routes = [
                 // number with the default value of 10
                 'number:num:10',
 
-                // checkbox (bool field)
-                'bool:check',
+                // checkbox (bool field) with a custom debounce of 1ms
+                '1:bool:check',
 
-                // array field
-                'array:option'
+                // array field, without debounce (the same as 0:array:option)
+                ':array:option'
             ],
             {
                 another: 'property passed directly to the component'

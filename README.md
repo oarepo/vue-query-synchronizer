@@ -114,9 +114,19 @@ Setting ``debug`` to ``true`` will log the parsed and serialized query parameter
 
 ``paramsList`` is a list of query parameters that should be captured
 by the library and synchronized with the component. A member of the list
-can be either string (as seen in the example above), string annotated with
- a datatype (``number:page``), string annotated with
-a datatype and a default value(``number:page:1``) or an object:
+can be:
+
+   * plain string with the name of the query parameter (as seen in the example above) 
+
+   * parameter name prefixed with a datatype (``number:page``)
+   
+   * parameter name prefixed with a datatype and followed by a default value
+     (``number:page:1``)
+     
+   * any of the above prefixed by debounce period in ms: (``500:search``,
+     ``500:number:amount``, ``0:bool:is_public``, ``500:number:page:1``)
+     
+   * an object:
 
 ```javascript
 {
