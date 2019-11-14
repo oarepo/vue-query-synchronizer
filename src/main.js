@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
-import QuerySupport from '@cis/query-support'
+import QuerySupport from '@oarepo/vue-query-synchronizer'
 
 Vue.use(QuerySupport, {
     router: router

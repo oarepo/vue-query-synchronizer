@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
-import { query } from '@cis/query-support'
+import Home from './Home.vue'
+import { query } from '@oarepo/vue-query-synchronizer'
 
 Vue.use(VueRouter)
 

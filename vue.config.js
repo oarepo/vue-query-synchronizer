@@ -1,11 +1,11 @@
 path = require('path')
 
 module.exports = {
-  configureWebpack: {
-    resolve: {
-      alias: {
-        '@cis/query-support': path.join(__dirname, 'src', 'library.js')
-      }
+    configureWebpack: {
+        resolve: {
+            alias: {
+                '@oarepo/vue-query-synchronizer': path.join(__dirname, 'src', 'library.js')
+            }
+        }
     }
-  }
 }
