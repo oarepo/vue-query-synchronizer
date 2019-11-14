@@ -207,3 +207,20 @@ Default datatypes are implemented by importable ``StringDatatype``,
 
 You can use them to create composite datatypes, for example an array
 of numbers.
+
+```javascript
+ArrayOfNumbersDatatype = {
+    parse(value, defaultValue, parsingDefaultValue) {
+        if (parsingDefaultValue) {
+            return ArrayDatatype.parse(value, defaultValue, parsingDefaultValue)
+        }
+        return ArrayDatatype.parse(value, defaultValue).
+            map(x=>NumberDatatype.parse(x, null))
+    },
+    serialize (value, defaultValue) {
+        return ArrayDatatype.serialize(
+            value.map(x => NumberDataType.serialize(value, null)),
+            defaultValue)
+    }
+}
+```
