@@ -84,9 +84,7 @@ yarn run serve
 
 ### Screenshot
 
------------------------------------------------
 ![screenshot](public/screenshot.png)
------------------------------------------------
 
 ## Library build
 ```
