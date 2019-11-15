@@ -20,6 +20,9 @@
     "@vue/eslint-config-standard": "^4.0.0",
     "babel-eslint": "^10.0.3",
     "babel-plugin-alter-object-assign": "^1.0.2",
-    "bili": "^4.8.1"
+    "bili": "^4.8.1",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "vue-template-compiler": "^2.6.10"
   }
 }
