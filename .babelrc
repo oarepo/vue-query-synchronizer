@@ -1,0 +1,21 @@
+{
+  "presets": [
+    "bili/babel",
+    "vue"
+  ],
+  "plugins": [
+    "syntax-dynamic-import",
+    [
+      "@babel/plugin-proposal-decorators",
+      {
+        "legacy": true
+      }
+    ],
+    [
+      "@babel/plugin-proposal-class-properties",
+      {
+        "loose": true
+      }
+    ]
+  ]
+}
