@@ -2,9 +2,10 @@
   "name": "@oarepo/vue-query-synchronizer",
   "version": "1.0.0",
   "private": false,
+  "main": "vue-query-synchronizer.esm.js",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build --target lib --name oarepo-vue-query-synchronizer ./src/library.js",
+    "build": "rm -rf dist; bili src/library.js --file-name vue-query-synchronizer.esm.js",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
@@ -18,9 +19,7 @@
     "@vue/cli-service": "^4.0.0",
     "@vue/eslint-config-standard": "^4.0.0",
     "babel-eslint": "^10.0.3",
-    "bili": "^4.8.1",
-    "eslint": "^5.16.0",
-    "eslint-plugin-vue": "^5.0.0",
-    "vue-template-compiler": "^2.6.10"
+    "babel-plugin-alter-object-assign": "^1.0.2",
+    "bili": "^4.8.1"
   }
 }
