@@ -1,31 +1,56 @@
 {
   "name": "@oarepo/vue-query-synchronizer",
   "version": "1.0.0",
-  "private": false,
   "main": "vue-query-synchronizer.esm.js",
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "rimraf dist; bili src/library.js --format es --file-name vue-query-synchronizer.esm.js && sed -i -e 's:../node_modules/@babel:@babel:g' dist/vue-query-synchronizer.esm.js && copyfiles package.json dist/",
-    "lint": "vue-cli-service lint"
-  },
   "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/plugin-proposal-decorators": "^7.4.4",
+    "@vue/cli-service": "^4.0.5",
+    "@vue/eslint-config-prettier": "^5.0.0",
+    "@vue/eslint-config-standard": "^4.0.0",
+    "babel-eslint": "^10.0.1",
+    "babel-plugin-syntax-dynamic-import": "^6.18.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-vue": "^2.0.2",
+    "bili": "^4.8.0",
+    "eslint": "^5.16.0",
+    "eslint-plugin-cypress": "^2.2.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-vue": "^5.2.2",
+    "glob": "^7.1.4",
+    "postcss": "^7.0.17",
+    "rollup-plugin-vue": "^5.0.0",
+    "set-value": "^3.0.1",
+    "vue-template-compiler": "^2.6.10"
+  },
+  "description": "Browser vue-router query synchronization library",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "vue-cli-service serve",
+    "build": "rm -rf dist; bili -c bili.config.js src/library.js --plugins.vue --format esm --file-name vue-query-synchronizer.esm.js && cp package.json dist/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oarepo/vue-query-synchronizer.git"
+  },
+  "keywords": [
+    "vuejs",
+    "ui",
+    "oarepo",
+    "invenio",
+    "components",
+    "vue-router",
+    "query parameters"
+  ],
+  "author": "Miroslav Simek <simeki@vscht.cz>",
+  "bugs": {
+    "url": "https://github.com/oarepo/vue-query-synchronizer/issues"
+  },
+  "homepage": "https://github.com/oarepo/vue-query-synchronizer#readme",
   "dependencies": {
-    "core-js": "2",
     "vue": "^2.6.10",
     "vue-router": "^3.1.3"
-  },
-  "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.0.0",
-    "@vue/cli-plugin-eslint": "^4.0.0",
-    "@vue/cli-service": "^4.0.0",
-    "@vue/eslint-config-standard": "^4.0.0",
-    "babel-eslint": "^10.0.3",
-    "babel-plugin-alter-object-assign": "^1.0.2",
-    "bili": "^4.8.1",
-    "copyfiles": "^2.1.1",
-    "eslint": "^5.16.0",
-    "eslint-plugin-vue": "^5.0.0",
-    "rimraf": "^3.0.0",
-    "vue-template-compiler": "^2.6.10"
   }
 }
