@@ -133,13 +133,20 @@ function makeQueryObject (query, params) {
     }
 
     for (const key of params) {
+        const datatype = $options.datatypes[key.datatype]
+        if (datatype === undefined) {
+            console.error(`No datatype handler defined for type name ${key.datatype}. ` +
+                `If you use text format for parameters, make sure that datatype is ` +
+                `at the first position (such as number:page, not vice versa)`)
+            continue
+        }
         if (key.parsedDefaultValue === undefined) {
-            key.parsedDefaultValue = $options.datatypes[key.datatype].parse(key.defaultValue, null, true)
+            key.parsedDefaultValue = datatype.parse(key.defaultValue, null, true)
         }
         if ($options.debug) {
             console.log('definition is', key, 'default value is', key.parsedDefaultValue, 'query value', query[key.name])
         }
-        const value = $options.datatypes[key.datatype].parse(query[key.name], key.parsedDefaultValue)
+        const value = datatype.parse(query[key.name], key.parsedDefaultValue)
         if ($options.debug) {
             console.log('parsed value is', value)
         }

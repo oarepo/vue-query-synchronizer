@@ -158,10 +158,15 @@ The object can define a datatype, which is implicitly string. The datatype
 defines how the value from URL is converted to model and vice versa. Datatypes
 are pluggable, see ``Datatype`` section later in the readme for details. 
 
-If ``default`` is set and a value is not present in the URL, the model
+If ``defaultValue`` is set and a value is not present in the URL, the model
 is set to this value. URL is not changed. When a default value is 
 programmatically set on the parameter (for example, user enters it in input),
 the parameter is removed from the url.  
+
+**Note:** This means that if you change the default value of a parameter
+during the lifetime of your application, user's bookmarks will start
+behaving differently as your code will receive the new default values,
+not the ones used when user bookmarked the page.
 
 #### ``extraParams``
 
