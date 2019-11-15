@@ -17,6 +17,15 @@ a couple of lines of code.
 yarn add @oarepo/vue-query-synchronizer
 ```
 
+### From sources
+```
+yarn build
+cd dist; yarn link
+
+cd your_project
+yarn link @oarepo/vue-query-synchronizer
+```
+
 ## Usage
 
 ### Plugin installation
