@@ -1,7 +1,12 @@
 module.exports = {
   plugins: {
     babel: {
-      externalHelpers: false,
+      plugins: [
+["@babel/transform-runtime", {
+    corejs: 2,
+  }]
+      ],
+      externalHelpers: true,
       runtimeHelpers: true
     }
   }

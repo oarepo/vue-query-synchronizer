@@ -5,12 +5,12 @@
   "main": "vue-query-synchronizer.esm.js",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "rimraf dist; bili src/library.js --file-name vue-query-synchronizer.esm.js && copyfiles package.json dist/",
+    "build": "rimraf dist; bili src/library.js --format es --file-name vue-query-synchronizer.esm.js && sed -i -e 's:../node_modules/@babel:@babel:g' dist/vue-query-synchronizer.esm.js && copyfiles package.json dist/",
     "lint": "vue-cli-service lint"
   },
   "license": "MIT",
   "dependencies": {
-    "core-js": "^3.3.2",
+    "core-js": "2",
     "vue": "^2.6.10",
     "vue-router": "^3.1.3"
   },

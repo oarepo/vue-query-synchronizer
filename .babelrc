@@ -1,0 +1,10 @@
+{
+    "presets": [
+        [ 
+            "@vue/cli-plugin-babel/preset",
+            {
+                "corejs": { "version": 2, "proposals": true }
+            }
+        ]
+    ]
+}
