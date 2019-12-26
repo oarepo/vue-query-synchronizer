@@ -117,11 +117,16 @@ Vue.use(QuerySynchronizer, {
     datatypes: {
         name: handler
     },
+    passUnknownProperties: false,
     debug: false
 })
 ```
 
-Setting ``debug`` to ``true`` will log the parsed and serialized query parameters. 
+Setting ``debug`` to ``true`` will log the parsed and serialized query parameters.
+
+Setting ``passUnknownProperties`` to ``true`` will pass all unknown
+query properties as an Array datatype. If set to false, unknown properties
+are not passed in the ``query`` prop.
 
 ### ``query(paramsList, extraParams?)``
 
@@ -242,3 +247,52 @@ ArrayOfNumbersDatatype = {
     }
 }
 ```
+
+#### ``Arrays``
+
+For the use with an 'array' datatype, the following helper methods are exposed:
+
+##### ``query._insert(propertyName, value)``
+
+Inserts the specified value to query property with name ``propertyName``
+if the value is not already present in the array. If present, does nothing.
+
+##### ``query._remove(propertyName, value)``
+
+Removes the specified value from query property with name ``propertyName``
+if the value is already present in the array. If not present, does nothing
+
+### Unknown properties
+
+In the default setting, only parameters defined in ``props: query([...])``
+are passed in the ``query`` object. To pass all the parameters in browser's
+location, set the configuration option ``passUnknownProperties`` to true.
+Doing so will cause the undefined parameters be passed as an ``array`` datatype.
+
+### Dynamic properties
+
+If the names of the query properties are not known in advance, it is possible
+to define the properties during the runtime, inside a component.
+
+To do so, call in component code (for example, in computed prop 
+or lifecycle events):
+
+```javascript
+
+computed: {
+  myProp () {
+     this.query._prop('myProp')
+     // or
+     this.query._prop({
+        name: 'myProp'
+        // prop definition
+     })
+     // now can return the prop
+     return this.query.myProp
+  }
+
+}
+```
+
+
+

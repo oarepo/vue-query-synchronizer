@@ -50,7 +50,7 @@
     <br><br>
     Another property from router, not affected by the addressbar: <code>{{ another }}</code><br><br>
     Query prop contains:
-    <pre>{{query}}</pre>
+    <pre>{{stringifiedQuery}}</pre>
 </div>
 </template>
 
@@ -62,6 +62,24 @@ export default {
     props: {
         query: Object,
         another: String
+    },
+    computed: {
+        stringifiedQuery () {
+            var cache = []
+            const ret = JSON.stringify(this.query, function (key, value) {
+                if (typeof value === 'object' && value !== null) {
+                    if (cache.indexOf(value) !== -1) {
+                        // Circular reference found, discard key
+                        return '-> ../' + key
+                    }
+                    // Store value in our collection
+                    cache.push(value)
+                }
+                return value
+            }, 4)
+            cache = null
+            return ret
+        }
     }
 }
 </script>
