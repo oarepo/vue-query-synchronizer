@@ -238,7 +238,7 @@ function makeQueryObject (query, params) {
     return queryObject
 }
 
-function query (params, extra) {
+function query (params, extra, options) {
     /*
         @param: params: all the parameters present in path. If not there, will be filled with null
         to be watchable
@@ -247,6 +247,7 @@ function query (params, extra) {
 
     // convert string query param names to object form
     params = (params || []).map(x => convertParam(x))
+    options = options || {}
 
     // gets called when the route changes
     function maker (route) {
@@ -258,8 +259,13 @@ function query (params, extra) {
         if (isFunction(extraData)) {
             extraData = extraData(route)
         }
+        let routeParams = {}
+        if (options.passParams) {
+            routeParams = route.params
+        }
         return {
             ...extraData,
+            ...routeParams,
             query: createdQuery
         }
     }
