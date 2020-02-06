@@ -356,7 +356,7 @@ const routes = [
     props: query(['filter', 'sort'], {}, { 
         onInit (paramsList) => paramsList 
         onLoad ({..., query}) => {..., query},
-        onChange (query) => undefined
+        onChange (newQuery, query) => undefined
     }),
     component: Home
 }
@@ -375,4 +375,6 @@ called after browser query parameters are parsed and before they are returned to
 #### ``onChange``
 
 called after just before the url is changed. Can be used to store the values to local storage
-so that the next onInit picks them and uses them as default
+so that the next onInit picks them and uses them as default. The callback takes two parameters:
+  * ``newQuery`` is the new query that will be set to URL. Does not contain props with default values
+  * ``query`` contains the whole current query object with resolved default values

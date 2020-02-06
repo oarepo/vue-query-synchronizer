@@ -40,9 +40,9 @@ const routes = [
                     console.log('onLoad', params)
                     return params
                 },
-                onChange: (query) => {
-                    window.localStorage.setItem('searchDefaultValue', query.search || '')
-                    console.log('onChange', query)
+                onChange: (query, queryValues) => {
+                    window.localStorage.setItem('searchDefaultValue', queryValues.search || '')
+                    console.log('onChange', query, queryValues)
                 }
             }),
         component: Home

@@ -28,22 +28,22 @@ SOFTWARE.
 const $options = {}
 
 //
-// A helper method that defines property. Setter of this property
-// supposes that the queryObject contains __schedule_update(key, value, extra)
-// method
+// A helper method that defines property on queryObject. The store for property values is in values
+// parameter
 //
-function defineProperty (queryObject, key, value, definition) {
+function defineProperty (queryObject, props, values, key, value, definition, scheduleUpdate) {
     const property = Object.defineProperty(queryObject, key, {
         get: function () {
-            return this['_' + key]
+            return values[key]
         },
         set: function (value) {
-            this['_' + key] = value
-            this.__schedule_update(definition, value)
-        }
+            values[key] = value
+            scheduleUpdate(definition, value)
+        },
+        enumerable: true
     })
-    queryObject['_' + key] = value
-    queryObject.__props[key] = property
+    values[key] = value
+    props[key] = property
     return property
 }
 
@@ -113,98 +113,105 @@ function convertParam (x) {
 // creates reactive query object
 //
 function makeQueryObject (query, params, options) {
+    // will contain the query params that have been updated
+    const updates = {}
 
-    const queryObject = {
-        // will contain the query params that have been updated
-        __updates: {},
+    // holder for values
+    const values = {}
 
-        // debouncing timer if debouncing is running
-        __timer: undefined,
+    // debouncing timer if debouncing is running
+    const timer = {
+        timer: undefined
+    }
 
-        __props: {},
+    const props = {}
 
-        // schedules an update
-        __schedule_update: function (definition, value) {
-            const key = definition.name
-            if ($options.debug) {
-                console.log('definition is', definition, 'default value is', definition.parsedDefaultValue, 'value', value)
-            }
-            // sets the value in the internal list of updated values (more than one value might be updated in debounce)
-            this.__updates[key] =
-                $options.datatypes[definition.datatype].serialize(value, definition.parsedDefaultValue)
-            if ($options.debug) {
-                console.log('serialized value is', this.__updates[key])
-            }
+    const queryObject = {}
 
-            // if debounce timer is running, kill it
-            if (this.__timer !== undefined) {
-                clearTimeout(this.__timer)
-            }
+    // schedules an update
+    const scheduleUpdate = function (definition, value) {
+        const key = definition.name
+        if ($options.debug) {
+            console.log('definition is', definition, 'default value is', definition.parsedDefaultValue, 'value', value)
+        }
+        // sets the value in the internal list of updated values (more than one value might be updated in debounce)
+        updates[key] =
+            $options.datatypes[definition.datatype].serialize(value, definition.parsedDefaultValue)
+        if ($options.debug) {
+            console.log('serialized value is', updates[key])
+        }
 
-            // start a new router modifying timer
-            this.__timer = setTimeout(
-                () => {
-                    // after debounce, set the router and clear the update list and timer
-                    const _query = {
-                        ...query
+        // if debounce timer is running, kill it
+        if (timer.timer !== undefined) {
+            clearTimeout(timer.timer)
+            delete timer.timer
+        }
+
+        // start a new router modifying timer
+        timer.timer = setTimeout(
+            () => {
+                // after debounce, set the router and clear the update list and timer
+                const _query = {
+                    ...query
+                }
+                // for each update: if the value is set,
+                // push it to query. If not set, remove it from query
+                Object.keys(updates).forEach(k => {
+                    const val = updates[k]
+                    if (val || val === null) {
+                        _query[k] = val
+                    } else if (_query[k] !== undefined) {
+                        delete _query[k]
                     }
-                    // for each update: if the value is set,
-                    // push it to query. If not set, remove it from query
-                    Object.keys(this.__updates).forEach(k => {
-                        const val = this.__updates[k]
-                        if (val || val === null) {
-                            _query[k] = val
-                        } else if (_query[k] !== undefined) {
-                            delete _query[k]
-                        }
-                    })
-                    if (options.onChange) {
-                        options.onChange(_query)
-                    }
-                    $options.router.push({ query: _query })
-                    this.__updates = {}
-                    this.__timer = null
-                },
-                // take the debounce from the query parameter or use the default one
-                definition.debounce || $options.debounce
-            )
-        },
-
-        _prop (pdef) {
-            const key = convertParam(pdef)
-            if (this.__props[key.name] === undefined) {
-                const datatype = $options.datatypes[key.datatype]
-                if (datatype === undefined) {
-                    console.error(`No datatype handler defined for type name ${key.datatype}. ` +
-                        `If you use text format for parameters, make sure that datatype is ` +
-                        `at the first position (such as number:page, not vice versa)`)
-                    return
+                })
+                if (options.onChange) {
+                    options.onChange(_query, queryObject)
                 }
-                if (key.parsedDefaultValue === undefined) {
-                    key.parsedDefaultValue = datatype.parse(key.defaultValue, null, true)
-                }
-                const parsedValue = datatype.parse(query[key.name], key.parsedDefaultValue)
-                if ($options.debug) {
-                    console.log('parsed value is', parsedValue)
-                }
-                return defineProperty(this, key.name, parsedValue, key)
-            } else {
-                return this.__props[key.name]
-            }
-        },
+                $options.router.push({ query: _query })
+                Object.keys(updates).forEach(function (key) {
+                    delete updates[key]
+                })
+                timer.timer = null
+            },
+            // take the debounce from the query parameter or use the default one
+            definition.debounce || $options.debounce
+        )
+    }
 
-        _insert (prop, value) {
-            value = value.toString()
-            if (!this[prop].includes(value)) {
-                this[prop] = [...this[prop], value]
+    queryObject._prop = function (pdef) {
+        const key = convertParam(pdef)
+        if (props[key.name] === undefined) {
+            const datatype = $options.datatypes[key.datatype]
+            if (datatype === undefined) {
+                console.error(`No datatype handler defined for type name ${key.datatype}. ` +
+                    `If you use text format for parameters, make sure that datatype is ` +
+                    `at the first position (such as number:page, not vice versa)`)
+                return
             }
-        },
+            if (key.parsedDefaultValue === undefined) {
+                key.parsedDefaultValue = datatype.parse(key.defaultValue, null, true)
+            }
+            const parsedValue = datatype.parse(query[key.name], key.parsedDefaultValue)
+            if ($options.debug) {
+                console.log('parsed value is', parsedValue)
+            }
+            return defineProperty(this, props, values, key.name, parsedValue, key, scheduleUpdate)
+        } else {
+            return props[key.name]
+        }
+    }
 
-        _remove (prop, value) {
-            value = value.toString()
-            if (this[prop].includes(value)) {
-                this[prop] = this[prop].filter(x => x !== value)
-            }
+    queryObject._insert = function (prop, value) {
+        value = value.toString()
+        if (!this[prop].includes(value)) {
+            this[prop] = [...this[prop], value]
+        }
+    }
+
+    queryObject._remove = function (prop, value) {
+        value = value.toString()
+        if (this[prop].includes(value)) {
+            this[prop] = this[prop].filter(x => x !== value)
         }
     }
 
@@ -226,7 +233,7 @@ function makeQueryObject (query, params, options) {
         if ($options.debug) {
             console.log('parsed value is', value)
         }
-        defineProperty(queryObject, key.name, value, key)
+        defineProperty(queryObject, props, values, key.name, value, key, scheduleUpdate)
     }
     if ($options.passUnknownProperties) {
         for (const key of Object.keys(query)) {
@@ -251,7 +258,6 @@ function query (params, extra, options) {
     // convert string query param names to object form
     params = (params || []).map(x => convertParam(x))
     options = options || {}
-
 
     // gets called when the route changes
     function maker (route) {
