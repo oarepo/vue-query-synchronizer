@@ -28,6 +28,22 @@ const routes = [
             ],
             {
                 another: 'property passed directly to the component'
+            },
+            {
+                onInit: (props) => {
+                    console.log('onInit', props)
+                    props.filter(x => x.name === 'search')[0].defaultValue =
+                        window.localStorage.getItem('searchDefaultValue')
+                    return props
+                },
+                onLoad: (params) => {
+                    console.log('onLoad', params)
+                    return params
+                },
+                onChange: (query) => {
+                    window.localStorage.setItem('searchDefaultValue', query.search)
+                    console.log('onChange', query)
+                }
             }),
         component: Home
     }

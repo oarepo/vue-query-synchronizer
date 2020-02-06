@@ -1,11 +1,12 @@
 <template>
 <div class="home">
     <br>
-    Write anything here and watch the addressbar:<br><br>
+    Write anything here and watch the addressbar. Later <a href="/">reload the application</a>
+    to see that the default value in the first field was taken from the local storage.<br><br>
     <table>
         <tr>
             <td>
-                Field with default debouncing of 100ms:
+                Field with default debouncing of 100ms, stored to the local storage:
             </td>
             <td>
                 <input v-model="query.search"><br><br>

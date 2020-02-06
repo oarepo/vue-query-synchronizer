@@ -12,6 +12,34 @@ debouncing) would propagate the change back to the query.
 This library does all of this on the background, leaving you with just
 a couple of lines of code.
 
+<!-- toc -->
+
+- [Installation](#installation)
+  * [From sources](#from-sources)
+- [Usage](#usage)
+  * [Plugin installation](#plugin-installation)
+  * [Router configuration](#router-configuration)
+  * [Component](#component)
+- [Demo setup and run](#demo-setup-and-run)
+  * [Screenshot](#screenshot)
+- [Library build](#library-build)
+- [API](#api)
+  * [``QuerySynchronizer`` plugin configuration](#querysynchronizer-plugin-configuration)
+  * [``query(paramsList, extraParams?)``](#queryparamslist-extraparams)
+    + [``paramsList``](#paramslist)
+    + [``extraParams``](#extraparams)
+  * [``Datatype``](#datatype)
+    + [``Arrays``](#arrays)
+  * [Unknown properties](#unknown-properties)
+  * [Dynamic properties](#dynamic-properties)
+  * [Passing route params](#passing-route-params)
+  * [Callbacks and signals](#callbacks-and-signals)
+    + [``onInit``](#oninit)
+    + [``onLoad``](#onload)
+    + [``onChange``](#onchange)
+
+<!-- tocstop -->
+
 ## Installation
 ```
 yarn add @oarepo/vue-query-synchronizer
@@ -313,3 +341,38 @@ const routes = [
 ```
 **Note:** the options dict is the third parameter, the second one are any extra static props that
 should be added.
+
+### Callbacks and signals
+
+The following signals can be specified at the query level:
+
+```javascript
+import { query } from '@oarepo/vue-query-synchronizer'
+
+const routes = [
+{
+    path: '/',
+    name: 'home',
+    props: query(['filter', 'sort'], {}, { 
+        onInit (paramsList) => paramsList 
+        onLoad ({..., query}) => {..., query},
+        onChange (query) => undefined
+    }),
+    component: Home
+}
+]
+```
+
+#### ``onInit``
+
+onInit is called when the query is loaded. This signal can be used for example to set default values
+stored in local storage or on the server.
+
+#### ``onLoad``
+
+called after browser query parameters are parsed and before they are returned to the component.
+
+#### ``onChange``
+
+called after just before the url is changed. Can be used to store the values to local storage
+so that the next onInit picks them and uses them as default

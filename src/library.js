@@ -112,7 +112,7 @@ function convertParam (x) {
 //
 // creates reactive query object
 //
-function makeQueryObject (query, params) {
+function makeQueryObject (query, params, options) {
 
     const queryObject = {
         // will contain the query params that have been updated
@@ -158,6 +158,9 @@ function makeQueryObject (query, params) {
                             delete _query[k]
                         }
                     })
+                    if (options.onChange) {
+                        options.onChange(_query)
+                    }
                     $options.router.push({ query: _query })
                     this.__updates = {}
                     this.__timer = null
@@ -200,7 +203,7 @@ function makeQueryObject (query, params) {
         _remove (prop, value) {
             value = value.toString()
             if (this[prop].includes(value)) {
-                this[prop] = this[prop].filter(x=>x !== value)
+                this[prop] = this[prop].filter(x => x !== value)
             }
         }
     }
@@ -249,12 +252,17 @@ function query (params, extra, options) {
     params = (params || []).map(x => convertParam(x))
     options = options || {}
 
+
     // gets called when the route changes
     function maker (route) {
         if ($options.debug) {
             console.log('synchronizer definition', params)
         }
-        const createdQuery = makeQueryObject(route.query, params)
+        let localParams = params
+        if (options.onInit) {
+            localParams = options.onInit(params) || params
+        }
+        const createdQuery = makeQueryObject(route.query, localParams, options)
         let extraData = (extra || {})
         if (isFunction(extraData)) {
             extraData = extraData(route)
@@ -263,11 +271,15 @@ function query (params, extra, options) {
         if (options.passParams) {
             routeParams = route.params
         }
-        return {
+        let ret = {
             ...extraData,
             ...routeParams,
             query: createdQuery
         }
+        if (options.onLoad) {
+            ret = options.onLoad(ret) || ret
+        }
+        return ret
     }
 
     return maker
