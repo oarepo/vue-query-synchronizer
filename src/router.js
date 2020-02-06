@@ -41,7 +41,7 @@ const routes = [
                     return params
                 },
                 onChange: (query) => {
-                    window.localStorage.setItem('searchDefaultValue', query.search)
+                    window.localStorage.setItem('searchDefaultValue', query.search || '')
                     console.log('onChange', query)
                 }
             }),
