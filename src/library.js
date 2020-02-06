@@ -266,7 +266,8 @@ function query (params, extra, options) {
         }
         let localParams = params
         if (options.onInit) {
-            localParams = options.onInit(params) || params
+            localParams = params.map(x => ({ ...x }))
+            localParams = options.onInit(localParams) || localParams
         }
         const createdQuery = makeQueryObject(route.query, localParams, options)
         let extraData = (extra || {})
