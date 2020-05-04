@@ -340,6 +340,7 @@ function query (params, extra, options) {
                 console.log('passUnknownProperties requested and have new params in url => recreating query object')
             }
             const existingParams = [...query.vqsParams]
+            query.$destroy()
             query = makeQueryObject(existingParams, options,
                 $options.passUnknownProperties && Object.keys(_query))
         }
