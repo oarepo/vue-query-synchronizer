@@ -23,6 +23,7 @@
     "eslint-plugin-vue": "^5.2.2",
     "glob": "^7.1.4",
     "markdown-toc": "^1.2.0",
+    "mkdirp": "^0.5.1",
     "postcss": "^7.0.17",
     "rimraf": "^3.0.0",
     "rollup-plugin-vue": "^5.0.0",
