@@ -25,7 +25,7 @@ a couple of lines of code.
 - [Library build](#library-build)
 - [API](#api)
   * [``QuerySynchronizer`` plugin configuration](#querysynchronizer-plugin-configuration)
-  * [``query(paramsList, extraParams?)``](#queryparamslist-extraparams)
+  * [``query(paramsList, extraParams?, options)``](#queryparamslist-extraparams)
     + [``paramsList``](#paramslist)
     + [``extraParams``](#extraparams)
   * [``Datatype``](#datatype)
@@ -156,7 +156,7 @@ Setting ``passUnknownProperties`` to ``true`` will pass all unknown
 query properties as an Array datatype. If set to false, unknown properties
 are not passed in the ``query`` prop.
 
-### ``query(paramsList, extraParams?)``
+### ``query(paramsList, extraParams?, options)``
 
 #### ``paramsList``
 

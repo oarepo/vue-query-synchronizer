@@ -110,8 +110,8 @@ function convertParam (x) {
 //
 // creates reactive query object
 //
-function makeQueryObject (params, options) {
-
+function makeQueryObject (params, options, extra_params) {
+    params = [...params]
     // debouncing timer if debouncing is running
     const timer = {
         timer: undefined
@@ -121,17 +121,17 @@ function makeQueryObject (params, options) {
         vqsQuery: {},
         vqsUpdates: {}
     }
-
     const vue_computed = {
         json: function () {
             const ret = {}
-            for (const key of params) {
+            for (const key of this.vqsParams) {
                 ret[key.name] = this[key.name]
             }
             return ret
         }
     }
-    for (const key of params) {
+    const existing_keys = {}
+    for (let key of params) {
         const datatype = $options.datatypes[key.datatype]
         if (datatype === undefined) {
             console.error(`No datatype handler defined for type name ${key.datatype}. ` +
@@ -143,7 +143,29 @@ function makeQueryObject (params, options) {
             key.parsedDefaultValue = datatype.parse(key.defaultValue, null, true)
         }
         defineProperty(vue_computed, key.name, key)
+        key.new = false
+        existing_keys[key.name] = key
     }
+    extra_params.forEach(key => {
+        if (existing_keys[key]) {
+            return
+        }
+        key = convertParam('string:' + key)
+        const datatype = $options.datatypes[key.datatype]
+        if (datatype === undefined) {
+            console.error(`No datatype handler defined for type name ${key.datatype}. ` +
+                `If you use text format for parameters, make sure that datatype is ` +
+                `at the first position (such as number:page, not vice versa)`)
+            return
+        }
+        if (key.parsedDefaultValue === undefined) {
+            key.parsedDefaultValue = datatype.parse(key.defaultValue, null, true)
+        }
+        defineProperty(vue_computed, key.name, key)
+        key.new = false
+        existing_keys[key.name] = key
+    })
+    vue_data['vqsParams'] = Object.values(existing_keys)
 
     const vue_methods = {
         _scheduleUpdate: function (definition, value) {
@@ -210,7 +232,16 @@ function makeQueryObject (params, options) {
                 if ($options.debug) {
                     console.log('parsed value is', parsedValue)
                 }
-                prop = defineProperty(this, key.name, key)
+                prop = Object.defineProperty(this, key.name, {
+                    get: function () {
+                        return this.$data.vqsQuery[key.name]
+                    },
+                    set: function (value) {
+                        Vue.set(this.$data.vqsQuery, key.name, value)
+                        this._scheduleUpdate(key, value)
+                    }
+                })
+                this.vqsParams.push({ ...key, new: true })
             }
             return prop
         },
@@ -228,11 +259,23 @@ function makeQueryObject (params, options) {
         },
         _setQuery: function (query) {
             const _new_query = {}
-            for (const key of params) {
+            for (const key of this.vqsParams) {
                 const datatype = $options.datatypes[key.datatype]
                 _new_query[key.name] = datatype.parse(query[key.name], key.parsedDefaultValue)
             }
             this.vqsQuery = _new_query
+        },
+        _hasAllParams: function (_query) {
+            const knownParams = this.vqsParams.filter(x => !x.new).reduce((n, x) => {
+                n[x.name] = true
+                return n
+            }, {})
+            for (const q of Object.keys(_query)) {
+                if (!knownParams[q]) {
+                    return false
+                }
+            }
+            return true
         }
     }
 
@@ -287,13 +330,18 @@ function query (params, extra, options) {
         delete actualParams.query
 
         if (!query) {
-            query = makeQueryObject(localParams, options)
-        }
-
-        if ($options.passUnknownProperties) {
-            for (const key of Object.keys(_query)) {
-                query._prop('array:' + key)
+            if ($options.debug) {
+                console.log('creating new query object')
             }
+            query = makeQueryObject(localParams, options,
+                $options.passUnknownProperties && Object.keys(_query))
+        } else if ($options.passUnknownProperties && !query._hasAllParams(_query)) {
+            if ($options.debug) {
+                console.log('passUnknownProperties requested and have new params in url => recreating query object')
+            }
+            const existingParams = [...query.vqsParams]
+            query = makeQueryObject(existingParams, options,
+                $options.passUnknownProperties && Object.keys(_query))
         }
 
         query._setQuery(_query)

@@ -4,6 +4,8 @@
     <pre>{{query.json}}</pre>
     Single field: {{ query.search }}
     <input v-model="query.search">
+    <br>
+    Setter for previously unknown query parameter 'z': <input v-model="query.z">
 </div>
 </template>
 
@@ -14,6 +16,9 @@ export default {
     components: {},
     props: {
         query: Object
+    },
+    mounted () {
+        this.query._prop('z')
     }
 }
 </script>
