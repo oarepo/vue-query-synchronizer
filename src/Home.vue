@@ -52,14 +52,19 @@
     Another property from router, not affected by the addressbar: <code>{{ another }}</code><br><br>
     query equals:
     <pre>{{stringifiedQuery}}</pre>
+    <br><br>
+    <subcomponent :query="query"></subcomponent>
 </div>
 </template>
 
 <script>
+import Subcomponent from './Subcomponent.vue'
 
 export default {
     name: 'home',
-    components: {},
+    components: {
+        Subcomponent
+    },
     props: {
         query: Object,
         another: String
