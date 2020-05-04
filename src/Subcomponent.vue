@@ -3,6 +3,7 @@
     Subcomponent gets the following query:
     <pre>{{stringifiedQuery}}</pre>
     Single field: {{ query.search }}
+    <input v-model="query.search">
 </div>
 </template>
 
