@@ -43,7 +43,8 @@ const routes = [
                 onChange: (query, queryValues) => {
                     window.localStorage.setItem('searchDefaultValue', queryValues.search || '')
                     console.log('onChange', query, queryValues)
-                }
+                },
+                passUnknownProperties: true
             }),
         component: Home
     }
