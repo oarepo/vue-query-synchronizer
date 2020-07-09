@@ -33,7 +33,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "serve": "vue-cli-service serve",
-    "build": "rimraf dist; bili -c bili.config.js src/library.js --plugins.vue --format esm --file-name vue-query-synchronizer.esm.js && copyfiles package.json README.md dist/",
+    "build": "rimraf dist; bili -c bili.config.js src/library.js --plugins.vue --format esm --file-name vue-query-synchronizer.esm.js && copyfiles package.json README.md index.d.ts dist/",
     "upload": "yarn build && npm publish --access public dist/",
     "toc": "markdown-toc --maxdepth 4 -i README.md"
   },
