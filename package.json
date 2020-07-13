@@ -1,6 +1,6 @@
 {
   "name": "@oarepo/vue-query-synchronizer",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "main": "vue-query-synchronizer.esm.js",
   "license": "MIT",
   "private": false,
@@ -55,9 +55,10 @@
     "url": "https://github.com/oarepo/vue-query-synchronizer/issues"
   },
   "homepage": "https://github.com/oarepo/vue-query-synchronizer#readme",
-  "dependencies": {
+  "peerDependencies": {
     "flatted": "^2.0.1",
     "vue": "^2.6.10",
     "vue-router": "^3.1.3"
-  }
+  },
+  "types": "index.d.ts"
 }
