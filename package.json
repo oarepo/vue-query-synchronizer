@@ -55,7 +55,7 @@
     "url": "https://github.com/oarepo/vue-query-synchronizer/issues"
   },
   "homepage": "https://github.com/oarepo/vue-query-synchronizer#readme",
-  "dependencies": {
+  "peerDependencies": {
     "flatted": "^2.0.1",
     "vue": "^2.6.10",
     "vue-router": "^3.1.3"
