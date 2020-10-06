@@ -71,8 +71,8 @@ See [src/main.js](src/main.js) for the whole file.
 
 ### Router configuration
 
-In router configuration, mark which query parameters should be synchronized
-with the component state:
+In router configuration, mark which query parameters with a given type and default value
+should be synchronized with the component state:
 
 ```javascript
 import { query } from '@oarepo/vue-query-synchronizer'
@@ -81,7 +81,11 @@ const routes = [
 {
     path: '/',
     name: 'home',
-    props: query(['filter', 'sort']),
+    meta: {
+        query: {
+           'page': 'int:1'
+        }
+    },
     component: Home
 }
 ]
@@ -90,28 +94,29 @@ Full example at [src/router.js](src/router.js)
 
 ### Component
 
-In component, do not forget to add ``query`` to component's ``props``. Then
-you can use ``query.filter``, ``query.sort`` as normal models for
+In component, use ``this.$query`` to access parsed query. Then
+you can use properties at ``$query``, for example 
+``$query.filter``, ``$query.sort`` as normal models for
 html inputs or as models for any other components:
 
 ```vue
 <template>
 <div>
-    <input v-model="query.filter"><br><br>
-    <pre>{{query}}</pre>
+    <input v-model="$query.filter"><br><br>
+    <pre>{{$rawQuery}}</pre>
 </div>
 </template>
 
 <script>
 export default {
     name: 'home',
-    props: {
-        query: Object,
-    }
 }
 </script>
 ```
 Full example at [src/Home.vue](src/Home.vue)
+
+The ``$rawQuery`` gives access to the raw data, ``$query`` 
+is 
 
 ## Demo setup and run
 ```
@@ -141,51 +146,37 @@ import QuerySynchronizer from '@oarepo/vue-query-synchronizer'
 
 Vue.use(QuerySynchronizer, {
     router: router,
-    debounce: 100,
     datatypes: {
         name: handler
     },
-    passUnknownProperties: false,
     debug: false
 })
 ```
 
 Setting ``debug`` to ``true`` will log the parsed and serialized query parameters.
 
-Setting ``passUnknownProperties`` to ``true`` will pass all unknown
-query properties as an Array datatype. If set to false, unknown properties
-are not passed in the ``query`` prop.
+### ``query``
 
-### ``query(paramsList, extraParams?)``
+The potential query parameters with data types are stored in route,
+``meta.query`` property in the form of ``param_name``:``definition``.
 
-#### ``paramsList``
+#### definition
 
-``paramsList`` is a list of query parameters that should be captured
-by the library and synchronized with the component. A member of the list
-can be:
+Definition can be:
 
-   * plain string with the name of the query parameter (as seen in the example above) 
-
-   * parameter name prefixed with a datatype (``number:page``)
+   * default string value (``test``)
    
-   * parameter name prefixed with a datatype and followed by a default value
-     (``number:page:1``)
-     
-   * any of the above prefixed by debounce period in ms: (``500:search``,
-     ``500:number:amount``, ``0:bool:is_public``, ``500:number:page:1``)
+   * datatype followed by a default value
+     (``int:1``)
      
    * an object:
 
 ```javascript
 {
-    name: 'search',
-    debounce: 1000,
     datatype: 'string',
     defaultValue: null
 }
 ``` 
-If the object defines ``debounce`` property, it will be used instead of the default
-value.
 
 The object can define a datatype, which is implicitly string. The datatype
 defines how the value from URL is converted to model and vice versa. Datatypes
@@ -200,13 +191,6 @@ the parameter is removed from the url.
 during the lifetime of your application, user's bookmarks will start
 behaving differently as your code will receive the new default values,
 not the ones used when user bookmarked the page.
-
-#### ``extraParams``
-
-Optional parameter ``extraParams`` contains any extra params 
-that you would normally put directly under ``props``.
-The parameter can be either an object or a function taking ``route`` and 
-returning an object.
 
 ### ``Datatype``
 
@@ -225,17 +209,17 @@ Vue.use(QuerySynchronizer, {
     router: router,
     datatypes: {
         lowecase: {
-            parse(value, defaultValue, parsingDefaultValue) {
+            parseDefault(value) {
+                // parses the default value from the strings above
+                return (value || '').toLowerCase()
+            },
+            parse(value, defaultValue) {
                 // value is: undefined if property is not present in the url
                 // null if property is in url but without a value
                 // string value if property is written as url?key=value
  
                 // note: defaultValue has been parsed previously so that
                 // it already is in the javascript format
-
-                // this method is called once to parse all default values,
-                // in this run parsingDefaultValue is set to true
-                // so that the datatype might react differently
                 return value ? value.toLowerCase() : defaultValue 
             },
             serialize (value, defaultValue) {
@@ -254,19 +238,21 @@ Vue.use(QuerySynchronizer, {
 ```
 
 Default datatypes are implemented by importable ``StringDatatype``, 
-``NumberDatatype``, ``BoolDatatype``, ``ArrayDatatype``.
+``IntDatatype``, ``BoolDatatype``, ``ArrayDatatype``.
 
 You can use them to create composite datatypes, for example an array
 of numbers.
 
 ```javascript
 ArrayOfNumbersDatatype = {
-    parse(value, defaultValue, parsingDefaultValue) {
-        if (parsingDefaultValue) {
-            return ArrayDatatype.parse(value, defaultValue, parsingDefaultValue)
-        }
+    parseDefault(value) {
+        return ArrayDatatype.parseDefault(value).map(
+            x => IntDatatype.parse(x, null)
+        )
+    },
+    parse(value, defaultValue) {
         return ArrayDatatype.parse(value, defaultValue).
-            map(x=>NumberDatatype.parse(x, null))
+            map(x=>IntDatatype.parse(x, null))
     },
     serialize (value, defaultValue) {
         return ArrayDatatype.serialize(
@@ -275,72 +261,6 @@ ArrayOfNumbersDatatype = {
     }
 }
 ```
-
-#### ``Arrays``
-
-For the use with an 'array' datatype, the following helper methods are exposed:
-
-##### ``query._insert(propertyName, value)``
-
-Inserts the specified value to query property with name ``propertyName``
-if the value is not already present in the array. If present, does nothing.
-
-##### ``query._remove(propertyName, value)``
-
-Removes the specified value from query property with name ``propertyName``
-if the value is already present in the array. If not present, does nothing
-
-### Unknown properties
-
-In the default setting, only parameters defined in ``props: query([...])``
-are passed in the ``query`` object. To pass all the parameters in browser's
-location, set the configuration option ``passUnknownProperties`` to true.
-Doing so will cause the undefined parameters be passed as an ``array`` datatype.
-
-### Dynamic properties
-
-If the names of the query properties are not known in advance, it is possible
-to define the properties during the runtime, inside a component.
-
-To do so, call in component code (for example, in computed prop 
-or lifecycle events):
-
-```javascript
-
-computed: {
-  myProp () {
-     this.query._prop('myProp')
-     // or
-     this.query._prop({
-        name: 'myProp'
-        // prop definition
-     })
-     // now can return the prop
-     return this.query.myProp
-  }
-
-}
-```
-
-### Passing route params
-
-In vuejs router one could specify ``props: true`` to pass route params to the called component as props.
-To merge route params with props generated by this query, add ``passParams`` to query options:  
-
-```javascript
-import { query } from '@oarepo/vue-query-synchronizer'
-
-const routes = [
-{
-    path: '/',
-    name: 'home',
-    props: query(['filter', 'sort'], {}, { passParams: true }),
-    component: Home
-}
-]
-```
-**Note:** the options dict is the third parameter, the second one are any extra static props that
-should be added.
 
 ### Callbacks and signals
 
@@ -353,11 +273,14 @@ const routes = [
 {
     path: '/',
     name: 'home',
-    props: query(['filter', 'sort'], {}, { 
-        onInit (paramsList) => paramsList 
-        onLoad ({..., query}) => {..., query},
-        onChange (newQuery, query) => undefined
-    }),
+    meta: {
+        query: {...},
+        querySettings: {
+            onInit (paramsList) { paramsList },
+            onLoad (query) { /* do something with query */ },
+            onChange (newQuery, query) { /* do something with newQuery */ }
+        }
+    },
     component: Home
 }
 ]

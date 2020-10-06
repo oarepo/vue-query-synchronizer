@@ -1,6 +1,6 @@
 {
   "name": "@oarepo/vue-query-synchronizer",
-  "version": "1.4.3",
+  "version": "2.0.0",
   "main": "vue-query-synchronizer.esm.js",
   "license": "MIT",
   "private": false,
@@ -27,12 +27,15 @@
     "rimraf": "^3.0.0",
     "rollup-plugin-vue": "^5.0.0",
     "set-value": "^3.0.1",
+    "vue": "^2.0.0",
+    "vue-router": "^3.0.0",
     "vue-template-compiler": "^2.6.10"
   },
   "description": "Browser vue-router query synchronization library",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service serve --modern",
+    "demobuild": "vue-cli-service build --mode development --modern",
     "build": "rimraf dist; bili -c bili.config.js src/library.js --plugins.vue --format esm --file-name vue-query-synchronizer.esm.js && copyfiles package.json README.md index.d.ts dist/",
     "upload": "yarn build && npm publish --access public dist/",
     "toc": "markdown-toc --maxdepth 4 -i README.md"

@@ -21,44 +21,27 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
-//
-// stored options from the installer
-//
-const $options = {}
-
-//
-// A helper method that defines property on queryObject. The store for property values is in values
-// parameter
-//
-function defineProperty (queryObject, props, values, key, value, definition, scheduleUpdate) {
-    const property = Object.defineProperty(queryObject, key, {
-        get: function () {
-            return values[key]
-        },
-        set: function (value) {
-            values[key] = value
-            scheduleUpdate(definition, value)
-        },
-        enumerable: true
-    })
-    values[key] = value
-    props[key] = property
-    return property
-}
-
-//
-// helper method to check if parameter is an object-taken from
-// https://stackoverflow.com/questions/8511281/check-if-a-value-is-an-object-in-javascript
-//
 function isObject (obj) {
     var type = typeof obj
     return type === 'function' || (type === 'object' && !!obj)
 }
 
-// https://jsperf.com/alternative-isfunction-implementations
-function isFunction (obj) {
-    return !!(obj && obj.constructor && obj.call && obj.apply)
+function convertParam (x, datatypes) {
+    if (!isObject(x)) {
+        x = x.split(':')
+        if (x.length === 1) {
+            x = ['string', x[0]]
+        }
+        const datatype = datatypes[x[0]]
+        x = {
+            datatype: datatype,
+            defaultValue: datatype.parseDefault(x[1])
+        }
+    }
+    if (x.datatype === undefined) {
+        x.datatype = datatypes['string']
+    }
+    return x
 }
 
 // https://gomakethings.com/how-to-check-if-two-arrays-are-equal-with-vanilla-js/
@@ -77,222 +60,10 @@ function arraysMatch (arr1, arr2) {
 
 }
 
-function convertParam (x) {
-    if (!isObject(x)) {
-        x = x.split(':')
-        let debounce = parseInt(x[0])
-        if (isNaN(debounce)) {
-            if (x[0] === '') {
-                debounce = 0
-                x.splice(0, 1)
-            } else {
-                debounce = undefined
-            }
-        } else {
-            x.splice(0, 1)
-        }
-        if (x.length === 1) {
-            x = ['string', x[0], null]
-        } else if (x.length === 2) {
-            x.push(null)
-        }
-        x = {
-            name: x[1],
-            datatype: x[0],
-            defaultValue: x[2],
-            debounce
-        }
-    }
-    if (x.datatype === undefined) {
-        x.datatype = 'string'
-    }
-    return x
-}
-
-//
-// creates reactive query object
-//
-function makeQueryObject (query, params, options) {
-    // will contain the query params that have been updated
-    const updates = {}
-
-    // holder for values
-    const values = {}
-
-    // debouncing timer if debouncing is running
-    const timer = {
-        timer: undefined
-    }
-
-    const props = {}
-
-    const queryObject = {}
-
-    // schedules an update
-    const scheduleUpdate = function (definition, value) {
-        const key = definition.name
-        if ($options.debug) {
-            console.log('definition is', definition, 'default value is', definition.parsedDefaultValue, 'value', value)
-        }
-        // sets the value in the internal list of updated values (more than one value might be updated in debounce)
-        updates[key] =
-            $options.datatypes[definition.datatype].serialize(value, definition.parsedDefaultValue)
-        if ($options.debug) {
-            console.log('serialized value is', updates[key])
-        }
-
-        // if debounce timer is running, kill it
-        if (timer.timer !== undefined) {
-            clearTimeout(timer.timer)
-            delete timer.timer
-        }
-
-        // start a new router modifying timer
-        timer.timer = setTimeout(
-            () => {
-                // after debounce, set the router and clear the update list and timer
-                const _query = {
-                    ...query
-                }
-                // for each update: if the value is set,
-                // push it to query. If not set, remove it from query
-                Object.keys(updates).forEach(k => {
-                    const val = updates[k]
-                    if (val || val === null) {
-                        _query[k] = val
-                    } else if (_query[k] !== undefined) {
-                        delete _query[k]
-                    }
-                })
-                if (options.onChange) {
-                    options.onChange(_query, queryObject)
-                }
-                $options.router.push({ query: _query })
-                Object.keys(updates).forEach(function (key) {
-                    delete updates[key]
-                })
-                timer.timer = null
-            },
-            // take the debounce from the query parameter or use the default one
-            definition.debounce || $options.debounce
-        )
-    }
-
-    queryObject._prop = function (pdef) {
-        const key = convertParam(pdef)
-        if (props[key.name] === undefined) {
-            const datatype = $options.datatypes[key.datatype]
-            if (datatype === undefined) {
-                console.error(`No datatype handler defined for type name ${key.datatype}. ` +
-                    `If you use text format for parameters, make sure that datatype is ` +
-                    `at the first position (such as number:page, not vice versa)`)
-                return
-            }
-            if (key.parsedDefaultValue === undefined) {
-                key.parsedDefaultValue = datatype.parse(key.defaultValue, null, true)
-            }
-            const parsedValue = datatype.parse(query[key.name], key.parsedDefaultValue)
-            if ($options.debug) {
-                console.log('parsed value is', parsedValue)
-            }
-            return defineProperty(this, props, values, key.name, parsedValue, key, scheduleUpdate)
-        } else {
-            return props[key.name]
-        }
-    }
-
-    queryObject._insert = function (prop, value) {
-        value = value.toString()
-        if (!this[prop].includes(value)) {
-            this[prop] = [...this[prop], value]
-        }
-    }
-
-    queryObject._remove = function (prop, value) {
-        value = value.toString()
-        if (this[prop].includes(value)) {
-            this[prop] = this[prop].filter(x => x !== value)
-        }
-    }
-
-    for (const key of params) {
-        const datatype = $options.datatypes[key.datatype]
-        if (datatype === undefined) {
-            console.error(`No datatype handler defined for type name ${key.datatype}. ` +
-                `If you use text format for parameters, make sure that datatype is ` +
-                `at the first position (such as number:page, not vice versa)`)
-            continue
-        }
-        if (key.parsedDefaultValue === undefined) {
-            key.parsedDefaultValue = datatype.parse(key.defaultValue, null, true)
-        }
-        if ($options.debug) {
-            console.log('definition is', key, 'default value is', key.parsedDefaultValue, 'query value', query[key.name])
-        }
-        const value = datatype.parse(query[key.name], key.parsedDefaultValue)
-        if ($options.debug) {
-            console.log('parsed value is', value)
-        }
-        defineProperty(queryObject, props, values, key.name, value, key, scheduleUpdate)
-    }
-    if ($options.passUnknownProperties) {
-        for (const key of Object.keys(query)) {
-            if (params[key] === undefined) {
-                if ($options.debug) {
-                    console.log('Adding extra option', key, 'query value', query[key])
-                }
-                queryObject._prop('array:' + key)
-            }
-        }
-    }
-    return queryObject
-}
-
-function query (params, extra, options) {
-    /*
-        @param: params: all the parameters present in path. If not there, will be filled with null
-        to be watchable
-        @param: extra: dictionary of extra properties that will be passed to props
-     */
-
-    // convert string query param names to object form
-    params = (params || []).map(x => convertParam(x))
-    options = options || {}
-
-    // gets called when the route changes
-    function maker (route) {
-        if ($options.debug) {
-            console.log('synchronizer definition', params)
-        }
-        let localParams = params
-        if (options.onInit) {
-            localParams = params.map(x => ({ ...x }))
-            localParams = options.onInit(localParams) || localParams
-        }
-        const createdQuery = makeQueryObject(route.query, localParams, options)
-        let extraData = (extra || {})
-        if (isFunction(extraData)) {
-            extraData = extraData(route)
-        }
-        let routeParams = {}
-        if (options.passParams) {
-            routeParams = route.params
-        }
-        let ret = {
-            ...extraData,
-            ...routeParams,
-            query: createdQuery
-        }
-        if (options.onLoad) {
-            ret = options.onLoad(ret) || ret
-        }
-        return ret
-    }
-
-    return maker
-}
-
 const StringDatatype = {
+    parseDefault (value) {
+        return value || ''
+    },
     parse (value, defaultValue) {
         if (value === undefined) {
             return defaultValue
@@ -304,11 +75,20 @@ const StringDatatype = {
         return value || ''
     },
     serialize (value, defaultValue) {
+        if (value === null || value === undefined || (value === '' && !defaultValue)) {
+            return undefined
+        }
         return value === defaultValue ? undefined : value
     }
 }
 
-const NumberDatatype = {
+const IntDatatype = {
+    parseDefault (value) {
+        if (value.length) {
+            return parseInt(value)
+        }
+        return 0
+    },
     parse (value, defaultValue) {
         if (value === undefined || value === null) {
             return defaultValue
@@ -320,19 +100,28 @@ const NumberDatatype = {
         return value
     },
     serialize (value, defaultValue) {
+        if (value === null || value === undefined) {
+            return undefined
+        }
         value = parseInt(value || 0)
         return value === defaultValue ? undefined : value.toString()
     }
 }
 
 const BoolDatatype = {
-    parse (value, defaultValue, parsingDefault) {
-        if (value === undefined || (value === null && parsingDefault)) {
+    parseDefault (value) {
+        return (value === '1' || value === 'true')
+    },
+    parse (value, defaultValue) {
+        if (value === undefined) {
             return defaultValue || false
         }
         return true
     },
     serialize (value, defaultValue) {
+        if (value === undefined) {
+            return undefined
+        }
         if (value && value !== defaultValue) {
             return null
         }
@@ -341,6 +130,19 @@ const BoolDatatype = {
 }
 
 const ArrayDatatype = {
+    parseDefault (value) {
+        if (value === undefined) {
+            return []
+        }
+        if (typeof value === 'string') {
+            if (value !== '') {
+                return [value]
+            } else {
+                return []
+            }
+        }
+        return value || []
+    },
     parse (value, defaultValue) {
         if (value === undefined) {
             return (defaultValue || []).slice()
@@ -351,29 +153,185 @@ const ArrayDatatype = {
         return value || []
     },
     serialize (value, defaultValue) {
-        return arraysMatch(value, defaultValue) ? undefined : value
+        if (value === null || value === undefined || value.length === 0) {
+            return undefined
+        }
+        if (arraysMatch(value, defaultValue)) {
+            return undefined
+        }
+        if (value.length === 1) {
+            return value[0]
+        }
+        return value
     }
 }
 
-export { query, StringDatatype, NumberDatatype, BoolDatatype, ArrayDatatype }
+const QuerySynchronizer = {
 
-export default {
-    install (Vue, options) {
-        if (!options || !options.router) {
-            throw Error('Supply router to options')
-        }
-        options = {
-            debounce: 100,
-            passUnknownProperties: false,
-            ...options
-        }
-        Object.assign($options, options)
-        $options.datatypes = {
+    install (Vue, { router, datatypes, debug }) {
+        datatypes = {
             'string': StringDatatype,
-            'number': NumberDatatype,
             'bool': BoolDatatype,
+            'int': IntDatatype,
             'array': ArrayDatatype,
-            ...($options.datatypes || {})
+            ...(datatypes || {})
         }
+        const defaultStringParam = {
+            datatype: StringDatatype,
+            defaultValue: null
+        }
+
+        const _vue = new Vue({
+            data: {
+                query: {},
+                params: {},
+                incr: 1
+            }
+        })
+
+        const handler = {
+            get (target, prop) {
+                if (prop in handler) {
+                    return (...args) => handler[prop].apply(target, args)
+                }
+                if (prop === '__self') {
+                    return target
+                }
+                if (prop === '__incr') {
+                    return target.incr
+                }
+                if (!(prop in target.query)) {
+                    const param = target.params[prop] || defaultStringParam
+                    Vue.set(target.query, prop, param.defaultValue)
+                }
+                return target.query[prop]
+            },
+
+            set (target, prop, value) {
+                if (value === undefined) {
+                    Vue.delete(target.query, prop)
+                    target.incr += 1
+                } else {
+                    Vue.set(target.query, prop, value)
+                    target.incr += 1
+                }
+                return true
+            },
+
+            delete (target, prop) {
+                if (debug) {
+                    console.log('Deleting', prop)
+                }
+                Vue.delete(target.query, prop)
+                target.incr += 1
+            },
+
+            has (target, key) {
+                return true // key in target
+            },
+
+            getHTMLQuery () {
+                const ret = {}
+                for (const k of Object.keys(this.query)) {
+                    const val = this.query[k]
+                    if (val === null) {
+                        continue
+                    }
+                    const param = this.params[k] || defaultStringParam
+                    const serializedVal = param.datatype.serialize(val, param.defaultValue)
+                    if (serializedVal !== undefined) {
+                        ret[k] = serializedVal
+                    }
+                }
+                return ret
+            },
+
+            setQuery (newQuery) {
+                for (const k of Object.keys(this.query)) {
+                    let val = newQuery[k]
+                    if (val === undefined) {
+                        continue
+                    }
+
+                    const param = this.params[k] || defaultStringParam
+                    const parsedVal = param.datatype.parse(val, param.defaultValue)
+
+                    if (parsedVal !== this.query[k]) {
+                        Vue.set(this.query, k, parsedVal)
+                        this.incr += 1
+                    }
+                }
+                for (const k of Object.keys(this.query)) {
+                    const newVal = newQuery[k]
+                    if (newVal === undefined) {
+                        Vue.delete(this.query, k)
+                        this.incr += 1
+                    }
+                }
+            }
+        }
+
+        const query = new Proxy(_vue, handler)
+        Vue.prototype.$query = query
+        Vue.prototype.$rawQuery = _vue.query
+
+        router.afterEach((to) => {
+            if (!to.meta.query) {
+                return
+            }
+            const settings = to.meta.querySettings || {}
+            const params = {}
+            for (const k in to.meta.query) {
+                params[k] = convertParam(to.meta.query[k], datatypes)
+            }
+            if (settings.onInit) {
+                settings.onInit(params, query, _vue)
+            }
+            _vue.params = params
+            _vue.settings = settings
+            query.setQuery(to.query)
+            if (settings.onLoad) {
+                settings.onLoad(query, _vue)
+            }
+            if (debug) {
+                console.log('Setting query from router', to.query, _vue.query)
+            }
+        })
+
+        _vue.$watch('incr', () => {
+            const existingQuery = router.currentRoute.query
+            const newQuery = query.getHTMLQuery()
+            let modified = false
+            if (Object.keys(existingQuery).length === Object.keys(newQuery).length) {
+                for (const k of Object.keys(newQuery)) {
+                    const val = newQuery[k] !== null ? newQuery[k].toString() : null
+                    if (val !== existingQuery[k]) {
+                        if (debug) {
+                            console.log('Setting router from query: modified property', k, val, existingQuery[k])
+                        }
+                        modified = true
+                        break
+                    }
+                }
+            } else {
+                modified = true
+            }
+            if (!modified) {
+                return
+            }
+            if (debug) {
+                console.log('Setting router from query', newQuery)
+            }
+            if (_vue.settings.onChange) {
+                _vue.settings.onChange(newQuery, query, _vue)
+            }
+            router.push({ query: newQuery })
+        })
     }
 }
+
+export {
+    StringDatatype, BoolDatatype, ArrayDatatype, IntDatatype
+}
+
+export default QuerySynchronizer

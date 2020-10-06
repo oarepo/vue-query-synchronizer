@@ -5,8 +5,7 @@ import QuerySupport from '@oarepo/vue-query-synchronizer'
 
 Vue.use(QuerySupport, {
     router: router,
-    debug: true,
-    passUnknownProperties: true
+    debug: true
 })
 
 Vue.config.productionTip = false
