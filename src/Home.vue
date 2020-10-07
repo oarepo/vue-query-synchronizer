@@ -64,7 +64,7 @@ export default {
         another: String
     },
     mounted () {
-        this.$query['check'] = true
+        // this.$query['check'] = true
     }
 }
 </script>

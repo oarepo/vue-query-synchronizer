@@ -247,7 +247,7 @@ const QuerySynchronizer = {
             },
 
             setQuery (newQuery) {
-                for (const k of Object.keys(this.query)) {
+                for (const k of Object.keys(newQuery)) {
                     let val = newQuery[k]
                     if (val === undefined) {
                         continue
