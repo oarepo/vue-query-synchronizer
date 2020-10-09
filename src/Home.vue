@@ -70,14 +70,18 @@
                 </td>
             </tr>
         </table>
+        <button @click="convert">Convert simple text field to numeric model (can be used to, for example, define
+            datatype later)
+        </button>
         <br><br>
-        Another property from router, not affected by the addressbar: <code>{{ another }}</code><br><br>
         query equals:
         <pre>{{ $rawQuery }}</pre>
     </div>
 </template>
 
 <script>
+
+import { IntDatatype } from '@oarepo/vue-query-synchronizer'
 
 export default {
     name: 'home',
@@ -87,6 +91,11 @@ export default {
     },
     mounted () {
         // this.$query['check'] = true
+    },
+    methods: {
+        convert () {
+            this.$query.define('search2', IntDatatype)
+        }
     }
 }
 </script>

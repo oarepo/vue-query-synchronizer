@@ -305,6 +305,19 @@ const QuerySynchronizer = {
                         this.incr += 1
                     }
                 }
+            },
+
+            define (name, datatype, defaultValue) {
+                this.params[name] = {
+                    datatype,
+                    defaultValue
+                }
+                const val = this.query[name]
+                const parsedVal = datatype.parse(val, defaultValue)
+
+                if (parsedVal !== this.query[name]) {
+                    Vue.set(this.query, name, parsedVal)
+                }
             }
         }
 
