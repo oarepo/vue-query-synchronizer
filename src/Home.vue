@@ -47,6 +47,28 @@
                     </select><br><br>
                 </td>
             </tr>
+            <tr>
+                <td>
+                    Comma-separated array (multiple selection, control-click for selecting both values):
+                </td>
+                <td>
+                    <select multiple v-model="$query.option2">
+                        <option value="first">First choice</option>
+                        <option value="second">Second choice</option>
+                    </select><br><br>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Space-separated array (multiple selection, control-click for selecting both values):
+                </td>
+                <td>
+                    <select multiple v-model="$query.option3">
+                        <option value="first">First choice</option>
+                        <option value="second">Second choice</option>
+                    </select><br><br>
+                </td>
+            </tr>
         </table>
         <br><br>
         Another property from router, not affected by the addressbar: <code>{{ another }}</code><br><br>

@@ -166,6 +166,41 @@ const ArrayDatatype = {
     }
 }
 
+function separatedArrayDatatype (separator) {
+    return {
+        parseDefault (value) {
+            if (value === undefined) {
+                return []
+            }
+            if (typeof value === 'string') {
+                return value.split(separator)
+            }
+            return value || []
+        },
+        parse (value, defaultValue) {
+            if (value === undefined) {
+                return (defaultValue || []).slice()
+            }
+            if (typeof value === 'string') {
+                return value.split(separator)
+            }
+            return value || []
+        },
+        serialize (value, defaultValue) {
+            if (value === null || value === undefined || value.length === 0) {
+                return undefined
+            }
+            if (arraysMatch(value, defaultValue)) {
+                return undefined
+            }
+            return value.join(separator)
+        }
+    }
+}
+
+const CommaArrayDatatype = separatedArrayDatatype(',')
+const SpaceArrayDatatype = separatedArrayDatatype(' ')
+
 const QuerySynchronizer = {
 
     install (Vue, { router, datatypes, debug }) {
@@ -174,6 +209,8 @@ const QuerySynchronizer = {
             'bool': BoolDatatype,
             'int': IntDatatype,
             'array': ArrayDatatype,
+            'commaarray': CommaArrayDatatype,
+            'spacearray': SpaceArrayDatatype,
             ...(datatypes || {})
         }
         const defaultStringParam = {
@@ -331,7 +368,8 @@ const QuerySynchronizer = {
 }
 
 export {
-    StringDatatype, BoolDatatype, ArrayDatatype, IntDatatype
+    StringDatatype, BoolDatatype, ArrayDatatype, IntDatatype,
+    separatedArrayDatatype, CommaArrayDatatype, SpaceArrayDatatype
 }
 
 export default QuerySynchronizer
