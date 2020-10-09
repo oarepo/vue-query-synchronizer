@@ -19,9 +19,12 @@ declare module "@oarepo/vue-query-synchronizer" {
     const BoolDatatype: Datatype<boolean>;
     const IntDatatype: Datatype<number>;
     const StringDatatype: Datatype<string>;
+    const CommaArrayDatatype: Datatype<any[]>;
+    const SpaceArrayDatatype: Datatype<any[]>;
 
     export {
         VueQuerySynchronizerObject as default,
-        ArrayDatatype, BoolDatatype, IntDatatype, StringDatatype
+        ArrayDatatype, BoolDatatype, IntDatatype, StringDatatype,
+        CommaArrayDatatype, SpaceArrayDatatype
     };
 }

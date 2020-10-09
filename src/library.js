@@ -220,6 +220,8 @@ const QuerySynchronizer = {
 
         const _vue = new Vue({
             data: {
+                routeName: null,
+                urlquery: {},
                 query: {},
                 params: {},
                 incr: 1
@@ -239,7 +241,7 @@ const QuerySynchronizer = {
                 }
                 if (!(prop in target.query)) {
                     const param = target.params[prop] || defaultStringParam
-                    Vue.set(target.query, prop, param.defaultValue)
+                    Vue.set(target.query, prop, param.datatype.parse(target.urlquery[prop], param.defaultValue))
                 }
                 return target.query[prop]
             },
@@ -247,19 +249,25 @@ const QuerySynchronizer = {
             set (target, prop, value) {
                 if (value === undefined) {
                     Vue.delete(target.query, prop)
+                    Vue.delete(target.urlquery, prop)
                     target.incr += 1
                 } else {
+                    const param = target.params[prop] || defaultStringParam
                     Vue.set(target.query, prop, value)
+                    const serializedVal = param.datatype.serialize(value, param.defaultValue)
+                    if (serializedVal !== undefined) {
+                        Vue.set(target.urlquery, prop, serializedVal)
+                    } else {
+                        Vue.delete(target.urlquery, prop)
+                    }
                     target.incr += 1
                 }
                 return true
             },
 
             delete (target, prop) {
-                if (debug) {
-                    console.log('Deleting', prop)
-                }
                 Vue.delete(target.query, prop)
+                Vue.delete(target.urlquery, prop)
                 target.incr += 1
             },
 
@@ -268,43 +276,18 @@ const QuerySynchronizer = {
             },
 
             getHTMLQuery () {
-                const ret = {}
-                for (const k of Object.keys(this.query)) {
-                    const val = this.query[k]
-                    if (val === null) {
-                        continue
-                    }
-                    const param = this.params[k] || defaultStringParam
-                    const serializedVal = param.datatype.serialize(val, param.defaultValue)
-                    if (serializedVal !== undefined) {
-                        ret[k] = serializedVal
-                    }
-                }
-                return ret
+                return this.urlquery
             },
 
             setQuery (newQuery) {
-                for (const k of Object.keys(newQuery)) {
-                    let val = newQuery[k]
-                    if (val === undefined) {
-                        continue
-                    }
-
-                    const param = this.params[k] || defaultStringParam
-                    const parsedVal = param.datatype.parse(val, param.defaultValue)
-
-                    if (parsedVal !== this.query[k]) {
-                        Vue.set(this.query, k, parsedVal)
-                        this.incr += 1
-                    }
-                }
-                for (const k of Object.keys(this.query)) {
-                    const newVal = newQuery[k]
-                    if (newVal === undefined) {
-                        Vue.delete(this.query, k)
-                        this.incr += 1
-                    }
-                }
+                const self = this
+                Object.keys(this.query).forEach(function (key) {
+                    delete self.query[key]
+                })
+                Object.keys(this.urlquery).forEach(function (key) {
+                    delete self.urlquery[key]
+                })
+                Object.assign(this.urlquery, newQuery)
             },
 
             define (name, datatype, defaultValue) {
@@ -312,12 +295,36 @@ const QuerySynchronizer = {
                     datatype,
                     defaultValue
                 }
-                const val = this.query[name]
-                const parsedVal = datatype.parse(val, defaultValue)
+                const val = this.urlquery[name]
+                query[name] = datatype.parse(val, defaultValue)
+            },
 
-                if (parsedVal !== this.query[name]) {
-                    Vue.set(this.query, name, parsedVal)
+            addValue (name, value, datatype) {
+                if (this.params[name] === undefined) {
+                    query.define(name, datatype || ArrayDatatype, [])
                 }
+                let arr = query[name] || []
+                if (!Array.isArray(arr)) {
+                    arr = [arr]
+                }
+                const idx = arr.indexOf(value)
+                if (idx < 0) {
+                    arr.push(value)
+                    query[name] = arr
+                }
+            },
+
+            removeValue (name, value, datatype) {
+                if (this.params[name] === undefined) {
+                    query.define(name, datatype || ArrayDatatype, [])
+                }
+                let arr = query[name] || []
+                if (!Array.isArray(arr)) {
+                    arr = [arr]
+                }
+                const idx = arr.indexOf(value)
+                arr.splice(idx, 1)
+                query[name] = arr
             }
         }
 
@@ -330,21 +337,27 @@ const QuerySynchronizer = {
                 return
             }
             const settings = to.meta.querySettings || {}
-            const params = {}
-            for (const k in to.meta.query) {
-                params[k] = convertParam(to.meta.query[k], datatypes)
+            if (_vue.routeName !== to.name) {
+                if (debug) {
+                    console.log('Route name changed, replacing param definition with', to.meta.query)
+                }
+                _vue.routeName = to.name
+                const params = {}
+                for (const k in to.meta.query) {
+                    params[k] = convertParam(to.meta.query[k], datatypes)
+                }
+                if (settings.onInit) {
+                    settings.onInit(params, query, _vue)
+                }
+                _vue.params = params
+                _vue.settings = settings
             }
-            if (settings.onInit) {
-                settings.onInit(params, query, _vue)
-            }
-            _vue.params = params
-            _vue.settings = settings
             query.setQuery(to.query)
             if (settings.onLoad) {
                 settings.onLoad(query, _vue)
             }
             if (debug) {
-                console.log('Setting query from router', to.query, _vue.query)
+                console.log('Setting query from router', to.query, _vue.urlquery)
             }
         })
 

@@ -69,19 +69,30 @@
                     </select><br><br>
                 </td>
             </tr>
+            <tr>
+                <td>
+                    Add and remove (the query param is called dynarr):
+                </td>
+                <td>
+                    <input v-model="tmp" placeholder="Enter value"><br><br>
+                    <button @click="$query.addValue('dynarr', tmp)">Add</button>&nbsp;
+                    <button @click="$query.removeValue('dynarr', tmp)">Remove</button><br>
+                </td>
+            </tr>
         </table>
+        <br><br>
         <button @click="convert">Convert simple text field to numeric model (can be used to, for example, define
             datatype later)
         </button>
         <br><br>
         query equals:
-        <pre>{{ $rawQuery }}</pre>
+        <pre>{{ rawQuery }}</pre>
     </div>
 </template>
 
 <script>
 
-import { IntDatatype } from '@oarepo/vue-query-synchronizer'
+import { IntDatatype, CommaArrayDatatype } from '@oarepo/vue-query-synchronizer'
 
 export default {
     name: 'home',
@@ -89,12 +100,22 @@ export default {
     props: {
         another: String
     },
+    data: function () {
+        return {
+            tmp: ''
+        }
+    },
     mounted () {
-        // this.$query['check'] = true
+        this.$query.define('dynarr', CommaArrayDatatype, [])
     },
     methods: {
         convert () {
             this.$query.define('search2', IntDatatype)
+        }
+    },
+    computed: {
+        rawQuery () {
+            return this.$rawQuery
         }
     }
 }
