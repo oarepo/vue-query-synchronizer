@@ -173,6 +173,9 @@ function separatedArrayDatatype (separator) {
                 return []
             }
             if (typeof value === 'string') {
+                if (value === '') {
+                    return []
+                }
                 return value.split(separator)
             }
             return value || []
@@ -182,6 +185,9 @@ function separatedArrayDatatype (separator) {
                 return (defaultValue || []).slice()
             }
             if (typeof value === 'string') {
+                if (value === '') {
+                    return []
+                }
                 return value.split(separator)
             }
             return value || []
@@ -216,6 +222,13 @@ const QuerySynchronizer = {
         const defaultStringParam = {
             datatype: StringDatatype,
             defaultValue: null
+        }
+
+        // for easier debugging
+        if (debug) {
+            Object.entries(datatypes).forEach(d => {
+                d[1].code = d[0]
+            })
         }
 
         const _vue = new Vue({
