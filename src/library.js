@@ -261,27 +261,33 @@ const QuerySynchronizer = {
 
             set (target, prop, value) {
                 if (value === undefined) {
-                    Vue.delete(target.query, prop)
-                    Vue.delete(target.urlquery, prop)
-                    target.incr += 1
+                    if (target.query[prop] !== undefined) {
+                        Vue.delete(target.query, prop)
+                        Vue.delete(target.urlquery, prop)
+                        target.incr += 1
+                    }
                 } else {
                     const param = target.params[prop] || defaultStringParam
-                    Vue.set(target.query, prop, value)
                     const serializedVal = param.datatype.serialize(value, param.defaultValue)
-                    if (serializedVal !== undefined) {
-                        Vue.set(target.urlquery, prop, serializedVal)
-                    } else {
-                        Vue.delete(target.urlquery, prop)
+                    if (serializedVal !== target.urlquery[prop]) {
+                        Vue.set(target.query, prop, value)
+                        if (serializedVal !== undefined) {
+                            Vue.set(target.urlquery, prop, serializedVal)
+                        } else {
+                            Vue.delete(target.urlquery, prop)
+                        }
+                        target.incr += 1
                     }
-                    target.incr += 1
                 }
                 return true
             },
 
             delete (target, prop) {
-                Vue.delete(target.query, prop)
-                Vue.delete(target.urlquery, prop)
-                target.incr += 1
+                if (target.query[prop] !== undefined) {
+                    Vue.delete(target.query, prop)
+                    Vue.delete(target.urlquery, prop)
+                    target.incr += 1
+                }
             },
 
             has (target, key) {
@@ -309,7 +315,8 @@ const QuerySynchronizer = {
                     defaultValue
                 }
                 const val = this.urlquery[name]
-                query[name] = datatype.parse(val, defaultValue)
+                // do not make this firing a new event
+                this.query[name] = datatype.parse(val, defaultValue)
             },
 
             addValue (name, value, datatype) {
@@ -319,6 +326,8 @@ const QuerySynchronizer = {
                 let arr = query[name] || []
                 if (!Array.isArray(arr)) {
                     arr = [arr]
+                } else {
+                    arr = [...arr]
                 }
                 const idx = arr.indexOf(value)
                 if (idx < 0) {
@@ -334,6 +343,8 @@ const QuerySynchronizer = {
                 let arr = query[name] || []
                 if (!Array.isArray(arr)) {
                     arr = [arr]
+                } else {
+                    arr = [...arr]
                 }
                 const idx = arr.indexOf(value)
                 arr.splice(idx, 1)
@@ -381,7 +392,7 @@ const QuerySynchronizer = {
             if (Object.keys(existingQuery).length === Object.keys(newQuery).length) {
                 for (const k of Object.keys(newQuery)) {
                     const val = newQuery[k] !== null ? newQuery[k].toString() : null
-                    if (val !== existingQuery[k]) {
+                    if (val !== existingQuery[k].toString()) {
                         if (debug) {
                             console.log('Setting router from query: modified property', k, val, existingQuery[k])
                         }
