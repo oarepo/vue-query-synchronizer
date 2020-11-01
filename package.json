@@ -1,6 +1,6 @@
 {
   "name": "@oarepo/vue-query-synchronizer",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "main": "vue-query-synchronizer.esm.js",
   "license": "MIT",
   "private": false,

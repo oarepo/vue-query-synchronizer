@@ -298,7 +298,7 @@ const QuerySynchronizer = {
                 const ret = new Set([
                     ...Object.keys(target.query),
                     ...Object.keys(target.urlquery),
-                    ...Object.keys(this.params || {})
+                    ...Object.keys(target.params || {})
                 ])
                 ret.delete('toJSON')
                 return [...ret]

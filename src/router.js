@@ -15,7 +15,8 @@ const routes = [
                 option: 'array:',
                 search: 'string:',
                 option2: 'commaarray:',
-                option3: 'spacearray:'
+                option3: 'spacearray:',
+                unusedOption: 'string:test'
             },
             querySettings: {
                 onInit: (props) => {
