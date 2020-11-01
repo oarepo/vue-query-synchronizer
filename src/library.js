@@ -21,12 +21,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-function isObject (obj) {
+function isObject(obj) {
     var type = typeof obj
     return type === 'function' || (type === 'object' && !!obj)
 }
 
-function convertParam (x, datatypes) {
+function convertParam(x, datatypes) {
     if (!isObject(x)) {
         x = x.split(':')
         if (x.length === 1) {
@@ -45,7 +45,7 @@ function convertParam (x, datatypes) {
 }
 
 // https://gomakethings.com/how-to-check-if-two-arrays-are-equal-with-vanilla-js/
-function arraysMatch (arr1, arr2) {
+function arraysMatch(arr1, arr2) {
 
     // Check if the arrays are the same length
     if (arr1.length !== arr2.length) return false
@@ -61,10 +61,10 @@ function arraysMatch (arr1, arr2) {
 }
 
 const StringDatatype = {
-    parseDefault (value) {
+    parseDefault(value) {
         return value || ''
     },
-    parse (value, defaultValue) {
+    parse(value, defaultValue) {
         if (value === undefined) {
             return defaultValue
         }
@@ -74,7 +74,7 @@ const StringDatatype = {
         }
         return value || ''
     },
-    serialize (value, defaultValue) {
+    serialize(value, defaultValue) {
         if (value === null || value === undefined || (value === '' && !defaultValue)) {
             return undefined
         }
@@ -83,13 +83,13 @@ const StringDatatype = {
 }
 
 const IntDatatype = {
-    parseDefault (value) {
+    parseDefault(value) {
         if (value.length) {
             return parseInt(value)
         }
         return 0
     },
-    parse (value, defaultValue) {
+    parse(value, defaultValue) {
         if (value === undefined || value === null) {
             return defaultValue
         }
@@ -99,7 +99,7 @@ const IntDatatype = {
         }
         return value
     },
-    serialize (value, defaultValue) {
+    serialize(value, defaultValue) {
         if (value === null || value === undefined) {
             return undefined
         }
@@ -109,16 +109,16 @@ const IntDatatype = {
 }
 
 const BoolDatatype = {
-    parseDefault (value) {
+    parseDefault(value) {
         return (value === '1' || value === 'true')
     },
-    parse (value, defaultValue) {
+    parse(value, defaultValue) {
         if (value === undefined) {
             return defaultValue || false
         }
         return true
     },
-    serialize (value, defaultValue) {
+    serialize(value, defaultValue) {
         if (value === undefined) {
             return undefined
         }
@@ -130,7 +130,7 @@ const BoolDatatype = {
 }
 
 const ArrayDatatype = {
-    parseDefault (value) {
+    parseDefault(value) {
         if (value === undefined) {
             return []
         }
@@ -143,7 +143,7 @@ const ArrayDatatype = {
         }
         return value || []
     },
-    parse (value, defaultValue) {
+    parse(value, defaultValue) {
         if (value === undefined) {
             return (defaultValue || []).slice()
         }
@@ -152,7 +152,7 @@ const ArrayDatatype = {
         }
         return value || []
     },
-    serialize (value, defaultValue) {
+    serialize(value, defaultValue) {
         if (value === null || value === undefined || value.length === 0) {
             return undefined
         }
@@ -166,9 +166,9 @@ const ArrayDatatype = {
     }
 }
 
-function separatedArrayDatatype (separator) {
+function separatedArrayDatatype(separator) {
     return {
-        parseDefault (value) {
+        parseDefault(value) {
             if (value === undefined) {
                 return []
             }
@@ -180,7 +180,7 @@ function separatedArrayDatatype (separator) {
             }
             return value || []
         },
-        parse (value, defaultValue) {
+        parse(value, defaultValue) {
             if (value === undefined) {
                 return (defaultValue || []).slice()
             }
@@ -192,7 +192,7 @@ function separatedArrayDatatype (separator) {
             }
             return value || []
         },
-        serialize (value, defaultValue) {
+        serialize(value, defaultValue) {
             if (value === null || value === undefined || value.length === 0) {
                 return undefined
             }
@@ -209,7 +209,7 @@ const SpaceArrayDatatype = separatedArrayDatatype(' ')
 
 const QuerySynchronizer = {
 
-    install (Vue, { router, datatypes, debug }) {
+    install(Vue, { router, datatypes, debug }) {
         datatypes = {
             'string': StringDatatype,
             'bool': BoolDatatype,
@@ -242,7 +242,7 @@ const QuerySynchronizer = {
         })
 
         const handler = {
-            get (target, prop) {
+            get(target, prop) {
                 if (prop in handler) {
                     return (...args) => handler[prop].apply(target, args)
                 }
@@ -259,7 +259,7 @@ const QuerySynchronizer = {
                 return target.query[prop]
             },
 
-            set (target, prop, value) {
+            set(target, prop, value) {
                 if (value === undefined) {
                     if (target.query[prop] !== undefined) {
                         Vue.delete(target.query, prop)
@@ -282,7 +282,7 @@ const QuerySynchronizer = {
                 return true
             },
 
-            delete (target, prop) {
+            delete(target, prop) {
                 if (target.query[prop] !== undefined) {
                     Vue.delete(target.query, prop)
                     Vue.delete(target.urlquery, prop)
@@ -290,15 +290,32 @@ const QuerySynchronizer = {
                 }
             },
 
-            has (target, key) {
+            has(target, key) {
                 return true // key in target
             },
 
-            getHTMLQuery () {
+            ownKeys(target) {
+                const ret = new Set([
+                    ...Object.keys(target.query),
+                    ...Object.keys(target.urlquery),
+                    ...Object.keys(this.params || {})
+                ])
+                ret.delete('toJSON')
+                return [...ret]
+            },
+
+            getOwnPropertyDescriptor(target, prop) {
+                if (prop === 'toJSON') {
+                    return { configurable: true, enumerable: false };
+                }
+                return { configurable: true, enumerable: true };
+            },
+
+            getHTMLQuery() {
                 return this.urlquery
             },
 
-            setQuery (newQuery) {
+            setQuery(newQuery) {
                 const self = this
                 Object.keys(this.query).forEach(function (key) {
                     delete self.query[key]
@@ -309,7 +326,7 @@ const QuerySynchronizer = {
                 Object.assign(this.urlquery, newQuery)
             },
 
-            define (name, datatype, defaultValue) {
+            define(name, datatype, defaultValue) {
                 this.params[name] = {
                     datatype,
                     defaultValue
@@ -319,7 +336,7 @@ const QuerySynchronizer = {
                 this.query[name] = datatype.parse(val, defaultValue)
             },
 
-            addValue (name, value, datatype) {
+            addValue(name, value, datatype) {
                 if (this.params[name] === undefined) {
                     query.define(name, datatype || ArrayDatatype, [])
                 }
@@ -336,7 +353,7 @@ const QuerySynchronizer = {
                 }
             },
 
-            removeValue (name, value, datatype) {
+            removeValue(name, value, datatype) {
                 if (this.params[name] === undefined) {
                     query.define(name, datatype || ArrayDatatype, [])
                 }

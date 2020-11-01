@@ -1,3 +1,13 @@
+import Vue from 'vue'
+
+declare module 'vue/types/vue' {
+  interface Vue {
+    $query: any
+    $rawQuery: any
+  }
+}
+
+
 declare module "@oarepo/vue-query-synchronizer" {
     import Router from "vue-router";
     import {PluginObject} from "vue";

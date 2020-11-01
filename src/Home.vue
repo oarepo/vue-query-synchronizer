@@ -76,7 +76,8 @@
                 <td>
                     <input v-model="tmp" placeholder="Enter value"><br><br>
                     <button @click="$query.addValue('dynarr', tmp)">Add</button>&nbsp;
-                    <button @click="$query.removeValue('dynarr', tmp)">Remove</button><br>
+                    <button @click="$query.removeValue('dynarr', tmp)">Remove</button>
+                    <br>
                 </td>
             </tr>
         </table>
@@ -87,6 +88,14 @@
         <br><br>
         query equals:
         <pre>{{ rawQuery }}</pre>
+        own keys:
+        <pre>
+            {{ currentKeys }}
+        </pre>
+        stringified query:
+        <pre>
+            {{ JSON.stringify($query, null, 4) }}
+        </pre>
     </div>
 </template>
 
@@ -102,20 +111,32 @@ export default {
     },
     data: function () {
         return {
-            tmp: ''
+            tmp: '',
+            currentKeys: []
         }
     },
-    mounted () {
+    mounted() {
         this.$query.define('dynarr', CommaArrayDatatype, [])
+        this.currentKeys = Object.getOwnPropertyNames(this.$query)
+        console.log(this.currentKeys, JSON.stringify(this.$query))
     },
     methods: {
-        convert () {
+        convert() {
             this.$query.define('search2', IntDatatype)
         }
     },
     computed: {
-        rawQuery () {
+        rawQuery() {
             return this.$rawQuery
+        }
+    },
+    watches: {
+        rawQuery: {
+            deep: true,
+            handler: () => {
+                console.log('current keys called with', this.$query)
+                this.currentKeys = Object.getOwnPropertyNames(this.$query)
+            }
         }
     }
 }
