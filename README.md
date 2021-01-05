@@ -144,7 +144,8 @@ Vue.use(QuerySynchronizer, {
     datatypes: {
         name: handler
     },
-    debug: false
+    debug: false,
+    navigationOperation: 'push' | 'replace',
 })
 ```
 
