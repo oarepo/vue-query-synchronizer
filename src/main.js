@@ -1,16 +1,4 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './App.vue'
-import router from './router'
-import QuerySupport from '@oarepo/vue-query-synchronizer'
 
-Vue.use(QuerySupport, {
-    router: router,
-    debug: true
-})
-
-Vue.config.productionTip = false
-
-new Vue({
-    router,
-    render: h => h(App)
-}).$mount('#app')
+createApp(App).mount('#app')
