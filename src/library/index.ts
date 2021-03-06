@@ -1,5 +1,5 @@
-import { reactive, watch } from 'vue'
-import { arraysMatch, isObject, queryFingerprint } from './utils'
+import {reactive, watch} from 'vue'
+import {arraysMatch, isObject, queryFingerprint} from './utils'
 import {
     ArrayDatatype,
     BoolDatatype,
@@ -8,55 +8,69 @@ import {
     SpaceArrayDatatype,
     StringDatatype
 } from './datatypes'
+import {LocationQuery, RouteLocationNormalizedLoaded, Router} from "vue-router";
+import {
+    DataTypes,
+    QueryParameterDefinition,
+    ParsedQuery,
+    QueryParameterDefinitions,
+    QuerySettings,
+    DetailedFingerprint
+} from "./types";
+import {WatchStopHandle} from "@vue/runtime-core";
 
 export * from './datatypes'
+export * from './types'
 
 /*
  * convert parameter in "meta/query" from string representation to object representation
  */
-export function parseParamDefinition (x, datatypes) {
-    if (!isObject(x)) {
-        x = x.split(':')
-        if (x.length === 1) {
-            x = ['string', x[0]]
+export function parseParamDefinition<T>(
+    defOrString: QueryParameterDefinition<T> | string,
+    datatypes: DataTypes): QueryParameterDefinition<T> {
+    let def: QueryParameterDefinition<T>
+    if (typeof defOrString === 'string') {
+        let splitted = defOrString.split(':')
+        if (splitted.length === 1) {
+            splitted = ['string', splitted[0]]
         }
-        const datatype = datatypes[x[0]]
-        x = {
+        const datatype = datatypes[splitted[0]]
+        def = {
             datatype: datatype,
-            defaultValue: datatype.parseDefault(x[1])
+            defaultValue: datatype.parseDefault(def[1])
         }
     }
-    if (x.datatype === undefined) {
-        x.datatype = datatypes['string']
+    if (def.datatype === undefined) {
+        def.datatype = datatypes['string']
     }
-    return x
+    return def
 }
 
 const _query = reactive({
-    query: {},
-    rawQuery: {},
+    query: {} as ParsedQuery,
+    rawQuery: {} as LocationQuery,
     enabled: true,
     serializedId: 0
 })
 
-let router = null
-let datatypes = null
+let router: Router = null
+let datatypes: DataTypes = null
 let debug = false
-let queryDefinition = null
-let querySettings = null
-let fingerprint = null
-let detailedFingerprint = {}
-let watchers = {}
+let queryDefinition: QueryParameterDefinitions = null
+let querySettings: QuerySettings = null
+let fingerprint: string = null
+let detailedFingerprint: DetailedFingerprint = {}
+let watchers: {[key: string]: WatchStopHandle} = {}
 
-function dlog (...args) {
+function dlog(...args) {
     if (debug) {
         console.log(...args)
     }
 }
 
-function prepareQuery (route) {
-    const _queryDefinition = {}
-    const _querySettings = {}
+function prepareQuery(route: RouteLocationNormalizedLoaded) {
+    const _queryDefinition: QueryParameterDefinitions = {}
+    const _querySettings: QuerySettings = {}
 
     // merge query definition from all matched segments on path
     route.matched.forEach(match => {
@@ -86,7 +100,7 @@ function prepareQuery (route) {
     return true
 }
 
-function serializeChangedValue (key, value) {
+function serializeChangedValue(key: string, value: any) {
     dlog('serialize changed value', key, value)
     if (value !== undefined) {
         const def = queryDefinition[key]
@@ -98,7 +112,7 @@ function serializeChangedValue (key, value) {
     saveValueToRawQuery(key, value)
 }
 
-function saveValueToRawQuery (key, value) {
+function saveValueToRawQuery(key: string, value: string | string[]) {
     if (value === undefined) {
         if (key in _query.rawQuery) {
             delete _query.rawQuery[key]
@@ -112,7 +126,7 @@ function saveValueToRawQuery (key, value) {
 
     if (!isNull) {
         if (isArray) {
-            value = value.map(x => x.toString())
+            value = (value as any[]).map(x => x.toString())
         } else {
             value = value.toString()
         }
@@ -145,7 +159,7 @@ function saveValueToRawQuery (key, value) {
     dlog('Set to raw', key, value)
 }
 
-function setWatcher (key) {
+function setWatcher(key: string) {
     if (key in watchers) {
         return
     }
@@ -156,12 +170,12 @@ function setWatcher (key) {
     )
 }
 
-function clearWatchers () {
+function clearWatchers() {
     Object.values(watchers).forEach(watcher => watcher())
     watchers = {}
 }
 
-function handleRouteChange (to) {
+function handleRouteChange(to) {
     if (!prepareQuery(to)) {
         fingerprint = null
         detailedFingerprint = {}
@@ -177,7 +191,7 @@ function handleRouteChange (to) {
     _query.enabled = true
 }
 
-function parseAndStoreQuery (query, actualDetailedFingerprint) {
+function parseAndStoreQuery(query, actualDetailedFingerprint) {
     dlog('Parse and store query called with', query, actualDetailedFingerprint)
     for (const key of Object.keys(query)) {
         if (detailedFingerprint[key] === actualDetailedFingerprint[key]) {
@@ -188,7 +202,7 @@ function parseAndStoreQuery (query, actualDetailedFingerprint) {
         if (!def) {
             _query.query[key] = val
         } else {
-            _query.query[key] = def.datatype.parse(val)
+            _query.query[key] = def.datatype.parse(val, def.defaultValue)
         }
     }
     for (const key of Object.keys(queryDefinition)) {
@@ -202,14 +216,14 @@ function parseAndStoreQuery (query, actualDetailedFingerprint) {
         }
         _query.query[key] = defVal
     }
-    _query.rawQuery = { ...query }
+    _query.rawQuery = {...query}
 
     if (querySettings.onLoad) {
         querySettings.onLoad(_query.query)
     }
 }
 
-function setup (_router, _datatypes, _debug) {
+function setup(_router, _datatypes, _debug) {
     router = _router
     datatypes = _datatypes
     debug = _debug
@@ -253,12 +267,12 @@ function setup (_router, _datatypes, _debug) {
             if (querySettings.onChange) {
                 querySettings.onChange(_query.rawQuery, _query.query)
             }
-            router.push({ query: _query.rawQuery })
+            router.push({query: _query.rawQuery})
         }
     )
 }
 
-function define (key, datatype, defaultValue) {
+function define(key, datatype, defaultValue) {
     queryDefinition[key] = {
         datatype,
         defaultValue
@@ -268,7 +282,7 @@ function define (key, datatype, defaultValue) {
     dlog('Defined new key', key)
 }
 
-function as_array (key, datatype) {
+function as_array(key, datatype) {
     if (!(key in _query.query)) {
         define(key, datatype || ArrayDatatype, [])
     }
@@ -280,7 +294,7 @@ function as_array (key, datatype) {
     }
 }
 
-function addValue (key, value, datatype) {
+function addValue(key, value, datatype) {
     const arr = as_array(key, datatype)
     const idx = arr.indexOf(value)
     if (idx < 0) {
@@ -289,7 +303,7 @@ function addValue (key, value, datatype) {
     _query.query[key] = arr
 }
 
-function removeValue (key, value, datatype) {
+function removeValue(key, value, datatype) {
     const arr = as_array(key, datatype)
     const idx = arr.indexOf(value)
     if (idx >= 0) {
@@ -298,45 +312,43 @@ function removeValue (key, value, datatype) {
     _query.query[key] = arr
 }
 
-function wrapDynamic () {
-    const handler = {
-        set: function (target, prop, value) {
-            if (!(prop in target)) {
-                define(prop, StringDatatype, '')
-            }
-            target[prop] = value
-            return true
-        },
-        get: function (target, prop) {
-            if (prop === 'define') {
-                return define
-            }
-            if (prop === 'addValue') {
-                return addValue
-            }
-            if (prop === 'removeValue') {
-                return removeValue
-            }
-            if (prop === '__definition') {
-                return queryDefinition
-            }
-            return target[prop]
-        },
-    }
-
-    return new Proxy(_query.query, handler)
+const handler = {
+    set: function (target, prop, value) {
+        if (!(prop in target)) {
+            define(prop, StringDatatype, '')
+        }
+        target[prop] = value
+        return true
+    },
+    get: function (target, prop) {
+        if (prop === 'define') {
+            return define
+        }
+        if (prop === 'addValue') {
+            return addValue
+        }
+        if (prop === 'removeValue') {
+            return removeValue
+        }
+        if (prop === '__definition') {
+            return queryDefinition
+        }
+        return target[prop]
+    },
 }
 
-export function useQuery () {
+const proxiedQuery = new Proxy(_query.query, handler)
+
+export function useQuery() {
     return {
-        query: wrapDynamic(_query.query),
+        query: proxiedQuery,
         rawQuery: _query.rawQuery,
         define
     }
 }
 
 export default {
-    install (app, { router, datatypes, debug }) {
+    install(app, {router, datatypes, debug}) {
         setup(router, {
             'string': StringDatatype,
             'bool': BoolDatatype,

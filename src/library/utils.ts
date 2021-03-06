@@ -1,10 +1,13 @@
-export function isObject (obj) {
+import {LocationQuery} from "vue-router";
+import {DetailedFingerprint} from "./types";
+
+export function isObject (obj: any) {
     var type = typeof obj
     return type === 'function' || (type === 'object' && !!obj)
 }
 
 // https://gomakethings.com/how-to-check-if-two-arrays-are-equal-with-vanilla-js/
-export function arraysMatch (arr1, arr2) {
+export function arraysMatch (arr1: any[], arr2: any[]) {
 
     // Check if the arrays are the same length
     if (arr1.length !== arr2.length) return false
@@ -21,7 +24,10 @@ export function arraysMatch (arr1, arr2) {
 
 // adapted from vue router to be always
 // the same regardless of order of defined keys
-export function queryFingerprint (query) {
+export function queryFingerprint (query: LocationQuery): {
+    fingerprint: string,
+    detailedFingerprint: DetailedFingerprint
+} {
     let fingerprint = ''
     const detailedFingerprint = {}
     for (let key of Object.keys(query).sort()) {
