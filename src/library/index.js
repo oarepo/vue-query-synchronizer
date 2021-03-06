@@ -44,7 +44,7 @@ let datatypes = null
 let debug = false
 let queryDefinition = null
 let querySettings = null
-let fingerprint = ''
+let fingerprint = null
 let detailedFingerprint = {}
 let watchers = {}
 
@@ -163,7 +163,7 @@ function clearWatchers () {
 
 function handleRouteChange (to) {
     if (!prepareQuery(to)) {
-        fingerprint = ''
+        fingerprint = null
         detailedFingerprint = {}
         Object.keys(_query.query).forEach(function (key) {
             delete _query.query[key]
@@ -178,6 +178,7 @@ function handleRouteChange (to) {
 }
 
 function parseAndStoreQuery (query, actualDetailedFingerprint) {
+    dlog('Parse and store query called with', query, actualDetailedFingerprint)
     for (const key of Object.keys(query)) {
         if (detailedFingerprint[key] === actualDetailedFingerprint[key]) {
             continue
@@ -249,6 +250,9 @@ function setup (_router, _datatypes, _debug) {
             const actualFingerprint = queryFingerprint(_query.rawQuery)
             fingerprint = actualFingerprint.fingerprint
             detailedFingerprint = actualFingerprint.detailedFingerprint
+            if (querySettings.onChange) {
+                querySettings.onChange(_query.rawQuery, _query.query)
+            }
             router.push({ query: _query.rawQuery })
         }
     )
@@ -276,7 +280,7 @@ function as_array (key, datatype) {
     }
 }
 
-function addValue(key, value, datatype) {
+function addValue (key, value, datatype) {
     const arr = as_array(key, datatype)
     const idx = arr.indexOf(value)
     if (idx < 0) {
@@ -285,7 +289,7 @@ function addValue(key, value, datatype) {
     _query.query[key] = arr
 }
 
-function removeValue(key, value, datatype) {
+function removeValue (key, value, datatype) {
     const arr = as_array(key, datatype)
     const idx = arr.indexOf(value)
     if (idx >= 0) {
@@ -303,7 +307,7 @@ function wrapDynamic () {
             target[prop] = value
             return true
         },
-        get: function(target, prop) {
+        get: function (target, prop) {
             if (prop === 'define') {
                 return define
             }
