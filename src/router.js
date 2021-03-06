@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from './Home.vue'
+import Issue_2 from '@/Issue_2'
 
 Vue.use(VueRouter)
 
@@ -36,6 +37,20 @@ const routes = [
             }
         },
         component: Home
+    },
+    {
+        path: '/2',
+        name: 'issue_2',
+        component: Issue_2,
+        meta: {
+            query: {
+                query: 'string:',
+                page: 'int:1',
+                sort: 'string:',
+                verified: 'bool:false',
+                location: 'string:'
+            }
+        }
     }
 ]
 
