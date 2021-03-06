@@ -1,5 +1,7 @@
 # @oarepo/vue-query-synchronizer
 
+Vue 3 implementation, work in progress ...
+
 In browser applications, address bar should be the most important source
 of truth. When user performs data filtering, sorting, pagination, the url should
 change so that the result of the filtering is bookmarkable/shareable.

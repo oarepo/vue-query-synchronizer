@@ -1,26 +1,22 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div style="display: flex; flex-direction: row; justify-content: space-around">
+    <div style="max-width: 600px">
+      <h1>Sample application</h1>
+      <router-view/>
+    </div>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import { defineComponent } from 'vue'
+import { useQuery } from '@oarepo/vue-query-synchronizer'
 
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
+export default defineComponent({
+  setup () {
+    useQuery()
   }
-}
+})
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
 </style>
