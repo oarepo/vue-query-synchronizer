@@ -1,5 +1,6 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import {createRouter, createWebHistory, LocationQuery} from 'vue-router'
 import Home from './Home.vue'
+import {ParsedQuery, QueryParameterDefinitions} from "@/library";
 
 const routes = [
   {
@@ -16,17 +17,17 @@ const routes = [
         unusedOption: 'string:test'
       },
       querySettings: {
-        onInit: (props) => {
+        onInit: (props: QueryParameterDefinitions) => {
           console.log('onInit', props)
           props['search'].defaultValue =
               window.localStorage.getItem('searchDefaultValue')
           return props
         },
-        onLoad: (params) => {
+        onLoad: (params: ParsedQuery) => {
           console.log('onLoad', params)
           return params
         },
-        onChange: (query, queryValues) => {
+        onChange: (query: LocationQuery, queryValues: ParsedQuery) => {
           window.localStorage.setItem('searchDefaultValue', queryValues.search || '')
           console.log('onChange', query, queryValues)
         }

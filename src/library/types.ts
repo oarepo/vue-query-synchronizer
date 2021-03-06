@@ -14,9 +14,9 @@ export interface DataType<T> {
 
     parseDefault(value: string): T | (() => T),
 
-    parse(value: string | string[], defaultValue: T): T,
+    parse(value: string | (string | null)[] | null, defaultValue: T): T,
 
-    serialize(value: T, defaultValue: T): string | string[]
+    serialize(value: T, defaultValue: T): string | string[] | undefined | null
 }
 
 export type DataTypes = {
@@ -33,10 +33,10 @@ export type ParsedQuery = {
 
 export interface QuerySettings {
     onInit?: (paramList: QueryParameterDefinitions) => void,
-    onLoad?: (query: any) => void,
+    onLoad?: (query: ParsedQuery) => void,
     onChange?: (newQuery: LocationQuery, query: ParsedQuery) => void
 }
 
 export interface DetailedFingerprint {
-    [key: string]: string
+    [key: string]: string | null
 }

@@ -89,16 +89,19 @@ export const ArrayDatatype: DataType<string[]> = {
                 return () => []
             }
         }
-        return () => [...(value || [])]
+        return () => [...(value as string[] || [])]
     },
-    parse(value, defaultValue) {
+    parse(value, defaultValue): string[] {
         if (value === undefined) {
             return (defaultValue || []).slice()
         }
         if (typeof value === 'string') {
             return [value]
         }
-        return value || []
+        if (!value) {
+            return []
+        }
+        return value.filter(x => x !== null) as string[]
     },
     serialize(value, defaultValue) {
         if (value === null || value === undefined || value.length === 0) {
@@ -114,7 +117,7 @@ export const ArrayDatatype: DataType<string[]> = {
     }
 }
 
-export function separatedArrayDatatype(separator) {
+export function separatedArrayDatatype(separator: string) {
     const dt: DataType<string[]> = {
         name: `separated_array_${separator}`,
         parseDefault(value) {
@@ -129,7 +132,7 @@ export function separatedArrayDatatype(separator) {
             }
             return value || []
         },
-        parse(value, defaultValue) {
+        parse(value, defaultValue): string[] {
             if (value === undefined) {
                 return (defaultValue || []).slice()
             }
@@ -139,7 +142,10 @@ export function separatedArrayDatatype(separator) {
                 }
                 return value.split(separator)
             }
-            return value || []
+            if (!value) {
+                return []
+            }
+            return value.filter(x => x !== null) as string[]
         },
         serialize(value, defaultValue) {
             if (value === null || value === undefined || value.length === 0) {

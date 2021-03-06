@@ -15,9 +15,10 @@ import {
     ParsedQuery,
     QueryParameterDefinitions,
     QuerySettings,
-    DetailedFingerprint
+    DetailedFingerprint, DataType
 } from "./types";
 import {WatchStopHandle} from "@vue/runtime-core";
+import Vue from 'vue'
 
 export * from './datatypes'
 export * from './types'
@@ -37,8 +38,10 @@ export function parseParamDefinition<T>(
         const datatype = datatypes[splitted[0]]
         def = {
             datatype: datatype,
-            defaultValue: datatype.parseDefault(def[1])
+            defaultValue: datatype.parseDefault(splitted[1])
         }
+    } else {
+        def = defOrString
     }
     if (def.datatype === undefined) {
         def.datatype = datatypes['string']
@@ -53,16 +56,16 @@ const _query = reactive({
     serializedId: 0
 })
 
-let router: Router = null
-let datatypes: DataTypes = null
+let router!: Router
+let datatypes!: DataTypes
 let debug = false
-let queryDefinition: QueryParameterDefinitions = null
-let querySettings: QuerySettings = null
-let fingerprint: string = null
+let queryDefinition: QueryParameterDefinitions | null = null
+let querySettings: QuerySettings | null = null
+let fingerprint: string | null = null
 let detailedFingerprint: DetailedFingerprint = {}
-let watchers: {[key: string]: WatchStopHandle} = {}
+let watchers: { [key: string]: WatchStopHandle } = {}
 
-function dlog(...args) {
+function dlog(...args: any[]) {
     if (debug) {
         console.log(...args)
     }
@@ -103,7 +106,7 @@ function prepareQuery(route: RouteLocationNormalizedLoaded) {
 function serializeChangedValue(key: string, value: any) {
     dlog('serialize changed value', key, value)
     if (value !== undefined) {
-        const def = queryDefinition[key]
+        const def = queryDefinition![key]
         if (def) {
             value = def.datatype.serialize(value, def.defaultValue)
         }
@@ -143,7 +146,7 @@ function saveValueToRawQuery(key: string, value: string | string[]) {
         } else if (Array.isArray(oldValue)) {
             if (!isArray) {
                 modified = true
-            } else if (arraysMatch(oldValue, value)) {
+            } else if (arraysMatch(oldValue, value as any[])) {
                 modified = true
             }
         } else if (isArray) {
@@ -175,7 +178,7 @@ function clearWatchers() {
     watchers = {}
 }
 
-function handleRouteChange(to) {
+function handleRouteChange(to: RouteLocationNormalizedLoaded) {
     if (!prepareQuery(to)) {
         fingerprint = null
         detailedFingerprint = {}
@@ -191,25 +194,25 @@ function handleRouteChange(to) {
     _query.enabled = true
 }
 
-function parseAndStoreQuery(query, actualDetailedFingerprint) {
+function parseAndStoreQuery(query: LocationQuery, actualDetailedFingerprint: DetailedFingerprint) {
     dlog('Parse and store query called with', query, actualDetailedFingerprint)
     for (const key of Object.keys(query)) {
         if (detailedFingerprint[key] === actualDetailedFingerprint[key]) {
             continue
         }
         const val = query[key]
-        const def = queryDefinition[key]
+        const def = queryDefinition![key]
         if (!def) {
             _query.query[key] = val
         } else {
             _query.query[key] = def.datatype.parse(val, def.defaultValue)
         }
     }
-    for (const key of Object.keys(queryDefinition)) {
+    for (const key of Object.keys(queryDefinition!)) {
         if (key in _query.query) {
             continue
         }
-        const def = queryDefinition[key]
+        const def = queryDefinition![key]
         let defVal = def.defaultValue
         if (typeof defVal === 'function') {
             defVal = defVal()
@@ -218,12 +221,12 @@ function parseAndStoreQuery(query, actualDetailedFingerprint) {
     }
     _query.rawQuery = {...query}
 
-    if (querySettings.onLoad) {
-        querySettings.onLoad(_query.query)
+    if (querySettings!.onLoad) {
+        querySettings!.onLoad(_query.query)
     }
 }
 
-function setup(_router, _datatypes, _debug) {
+function setup(_router: Router, _datatypes: DataTypes, _debug: boolean) {
     router = _router
     datatypes = _datatypes
     debug = _debug
@@ -264,16 +267,16 @@ function setup(_router, _datatypes, _debug) {
             const actualFingerprint = queryFingerprint(_query.rawQuery)
             fingerprint = actualFingerprint.fingerprint
             detailedFingerprint = actualFingerprint.detailedFingerprint
-            if (querySettings.onChange) {
-                querySettings.onChange(_query.rawQuery, _query.query)
+            if (querySettings!.onChange) {
+                querySettings!.onChange(_query.rawQuery, _query.query)
             }
             router.push({query: _query.rawQuery})
         }
     )
 }
 
-function define(key, datatype, defaultValue) {
-    queryDefinition[key] = {
+function define<T>(key: string, datatype: DataType<T>, defaultValue: T) {
+    queryDefinition![key] = {
         datatype,
         defaultValue
     }
@@ -282,9 +285,9 @@ function define(key, datatype, defaultValue) {
     dlog('Defined new key', key)
 }
 
-function as_array(key, datatype) {
+function as_array<T>(key: string, datatype: DataType<T[]>) {
     if (!(key in _query.query)) {
-        define(key, datatype || ArrayDatatype, [])
+        define(key, datatype || ArrayDatatype, [] as T[])
     }
     let arr = _query.query[key] || []
     if (!Array.isArray(arr)) {
@@ -294,7 +297,7 @@ function as_array(key, datatype) {
     }
 }
 
-function addValue(key, value, datatype) {
+function addValue<T>(key: string, value: T, datatype: DataType<T[]>) {
     const arr = as_array(key, datatype)
     const idx = arr.indexOf(value)
     if (idx < 0) {
@@ -303,7 +306,7 @@ function addValue(key, value, datatype) {
     _query.query[key] = arr
 }
 
-function removeValue(key, value, datatype) {
+function removeValue<T>(key: string, value: T, datatype: DataType<T[]>) {
     const arr = as_array(key, datatype)
     const idx = arr.indexOf(value)
     if (idx >= 0) {
@@ -313,14 +316,14 @@ function removeValue(key, value, datatype) {
 }
 
 const handler = {
-    set: function (target, prop, value) {
+    set: function (target: ParsedQuery, prop: string, value: any) {
         if (!(prop in target)) {
             define(prop, StringDatatype, '')
         }
         target[prop] = value
         return true
     },
-    get: function (target, prop) {
+    get: function (target: ParsedQuery, prop: string) {
         if (prop === 'define') {
             return define
         }
@@ -348,7 +351,7 @@ export function useQuery() {
 }
 
 export default {
-    install(app, {router, datatypes, debug}) {
+    install(app: any, {router, datatypes, debug}: { router: Router, datatypes?: DataTypes, debug?: boolean }) {
         setup(router, {
             'string': StringDatatype,
             'bool': BoolDatatype,
@@ -357,7 +360,7 @@ export default {
             'commaarray': CommaArrayDatatype,
             'spacearray': SpaceArrayDatatype,
             ...(datatypes || {})
-        }, debug)
+        }, debug || false)
         app.config.globalProperties.$query = useQuery().query
     }
 }

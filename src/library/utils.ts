@@ -29,7 +29,7 @@ export function queryFingerprint (query: LocationQuery): {
     detailedFingerprint: DetailedFingerprint
 } {
     let fingerprint = ''
-    const detailedFingerprint = {}
+    const detailedFingerprint: DetailedFingerprint = {}
     for (let key of Object.keys(query).sort()) {
         const value = query[key]
         key = encodeURIComponent(key)
