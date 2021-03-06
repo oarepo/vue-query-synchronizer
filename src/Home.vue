@@ -89,9 +89,9 @@
         query equals:
         <pre>{{ $query }}</pre>
         stringified query:
-        <pre>
-            {{ JSON.stringify($query, null, 4) }}
-        </pre>
+        <pre>{{ JSON.stringify($query, null, 4) }}</pre>
+        definition (not reactive):
+        <pre>{{ $query.__definition }}</pre>
     </div>
 </template>
 
@@ -112,11 +112,11 @@ export default {
     },
     mounted() {
       console.log('query is', this.$query)
-        this.$fullQuery.define('dynarr', CommaArrayDatatype, [])
+        this.$query.define('dynarr', CommaArrayDatatype, [])
     },
     methods: {
         convert() {
-            this.$fullQuery.define('search2', IntDatatype)
+            this.$query.define('search2', IntDatatype)
         }
     }
 }

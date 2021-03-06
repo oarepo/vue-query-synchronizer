@@ -1,6 +1,7 @@
 import { arraysMatch } from '@/library/utils'
 
 export const StringDatatype = {
+    name: 'string',
     parseDefault (value) {
         return value || ''
     },
@@ -23,6 +24,7 @@ export const StringDatatype = {
 }
 
 export const IntDatatype = {
+    name: 'int',
     parseDefault (value) {
         if (value.length) {
             return parseInt(value)
@@ -49,6 +51,7 @@ export const IntDatatype = {
 }
 
 export const BoolDatatype = {
+    name: 'bool',
     parseDefault (value) {
         return (value === '1' || value === 'true')
     },
@@ -70,6 +73,7 @@ export const BoolDatatype = {
 }
 
 export const ArrayDatatype = {
+    name: 'array',
     parseDefault (value) {
         if (value === undefined) {
             return () => []
@@ -108,6 +112,7 @@ export const ArrayDatatype = {
 
 export function separatedArrayDatatype (separator) {
     return {
+        name: `separated_array_${separator}`,
         parseDefault (value) {
             if (value === undefined) {
                 return []

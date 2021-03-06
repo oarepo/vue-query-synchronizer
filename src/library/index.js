@@ -264,6 +264,36 @@ function define (key, datatype, defaultValue) {
     dlog('Defined new key', key)
 }
 
+function as_array (key, datatype) {
+    if (!(key in _query.query)) {
+        define(key, datatype || ArrayDatatype, [])
+    }
+    let arr = _query.query[key] || []
+    if (!Array.isArray(arr)) {
+        return [arr]
+    } else {
+        return [...arr]
+    }
+}
+
+function addValue(key, value, datatype) {
+    const arr = as_array(key, datatype)
+    const idx = arr.indexOf(value)
+    if (idx < 0) {
+        arr.push(value)
+    }
+    _query.query[key] = arr
+}
+
+function removeValue(key, value, datatype) {
+    const arr = as_array(key, datatype)
+    const idx = arr.indexOf(value)
+    if (idx >= 0) {
+        arr.splice(idx, 1)
+    }
+    _query.query[key] = arr
+}
+
 function wrapDynamic () {
     const handler = {
         set: function (target, prop, value) {
@@ -272,7 +302,22 @@ function wrapDynamic () {
             }
             target[prop] = value
             return true
-        }
+        },
+        get: function(target, prop) {
+            if (prop === 'define') {
+                return define
+            }
+            if (prop === 'addValue') {
+                return addValue
+            }
+            if (prop === 'removeValue') {
+                return removeValue
+            }
+            if (prop === '__definition') {
+                return queryDefinition
+            }
+            return target[prop]
+        },
     }
 
     return new Proxy(_query.query, handler)
@@ -297,7 +342,6 @@ export default {
             'spacearray': SpaceArrayDatatype,
             ...(datatypes || {})
         }, debug)
-        app.config.globalProperties.$fullQuery = useQuery()
         app.config.globalProperties.$query = useQuery().query
     }
 }
