@@ -23,13 +23,22 @@ export type DataTypes = {
     [key: string]: DataType<any>
 }
 
-export type ParsedQuery = {
-    [key: string]: string | number | string[] | number[] | boolean | any,
+export type ParsedQueryMixin = {
     define(key: string, datatype: DataType<any>, defaultValue: any): void,
     addValue(key: string, value: any, datatype: DataType<any>): void,
     removeValue(key: string, value: any, datatype: DataType<any>): void,
     __definition: QueryParameterDefinitions
 }
+
+export type GenericParsedQuery = {
+    [key: string]: string | number | string[] | number[] | boolean | any,
+}
+
+export interface ParsedQuery extends ParsedQueryMixin, GenericParsedQuery {
+}
+
+export type TypedParsedQuery<T> = ParsedQueryMixin & T
+
 
 export interface QuerySettings {
     onInit?: (paramList: QueryParameterDefinitions) => void,

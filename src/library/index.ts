@@ -15,7 +15,7 @@ import {
     ParsedQuery,
     QueryParameterDefinitions,
     QuerySettings,
-    DetailedFingerprint, DataType
+    DetailedFingerprint, DataType, TypedParsedQuery
 } from "./types";
 import {WatchStopHandle} from "@vue/runtime-core";
 import Vue from 'vue'
@@ -179,19 +179,20 @@ function clearWatchers() {
 }
 
 function handleRouteChange(to: RouteLocationNormalizedLoaded) {
+    fingerprint = null
+    detailedFingerprint = {}
+    Object.keys(_query.query).forEach(function (key) {
+        delete _query.query[key]
+    })
+    queryDefinition = {}
+    querySettings = {}
+    clearWatchers()
+
     if (!prepareQuery(to)) {
-        fingerprint = null
-        detailedFingerprint = {}
-        Object.keys(_query.query).forEach(function (key) {
-            delete _query.query[key]
-        })
         _query.enabled = false
-        queryDefinition = {}
-        querySettings = {}
-        clearWatchers()
-        return
+    } else {
+        _query.enabled = true
     }
-    _query.enabled = true
 }
 
 function parseAndStoreQuery(query: LocationQuery, actualDetailedFingerprint: DetailedFingerprint) {
@@ -342,12 +343,12 @@ const handler = {
 
 const proxiedQuery = new Proxy(_query.query, handler)
 
-export function useQuery() {
-    return {
-        query: proxiedQuery,
-        rawQuery: _query.rawQuery,
-        define
-    }
+export function useQuery<T>(): TypedParsedQuery<T> {
+    return proxiedQuery as TypedParsedQuery<T>
+}
+
+export function useRawQuery() {
+    return _query
 }
 
 export default {
@@ -361,6 +362,6 @@ export default {
             'spacearray': SpaceArrayDatatype,
             ...(datatypes || {})
         }, debug || false)
-        app.config.globalProperties.$query = useQuery().query
+        app.config.globalProperties.$query = useQuery()
     }
 }

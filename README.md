@@ -1,6 +1,6 @@
 # @oarepo/vue-query-synchronizer
 
-Vue 3 implementation, work in progress ...
+This is Vue 3 implementation, for vue2 look at the [vue-2](https://github.com/oarepo/vue-query-synchronizer/tree/vue3) branch
 
 In browser applications, address bar should be the most important source
 of truth. When user performs data filtering, sorting, pagination, the url should
@@ -39,7 +39,7 @@ a couple of lines of code.
 
 ## Installation
 ```
-yarn add @oarepo/vue-query-synchronizer
+yarn add @oarepo/vue-query-synchronizer@^3.0.0
 ```
 
 ### From sources
@@ -91,6 +91,34 @@ Full example at [src/router.js](src/router.js)
 
 ### Component
 
+#### Composition-api based
+
+Call ``useQuery()`` and use the result as usual (for example as model for input):
+
+```vue
+<template>
+<div>
+    <input v-model="query.filter"><br><br>
+</div>
+</template>
+
+<script>
+import { useQuery } from '@oarepo/vue-query-synchronizer'
+
+export default {
+    setup() {
+      return {
+        query: useQuery(),
+      }
+    }
+}
+</script>
+```
+
+Full example at [src/CompositionHome.vue](src/CompositionHome.vue)
+
+#### Options-based component
+
 In component, use ``this.$query`` to access parsed query. Then
 you can use properties at ``$query``, for example 
 ``$query.filter``, ``$query.sort`` as normal models for
@@ -100,7 +128,6 @@ html inputs or as models for any other components:
 <template>
 <div>
     <input v-model="$query.filter"><br><br>
-    <pre>{{$rawQuery}}</pre>
 </div>
 </template>
 
@@ -111,9 +138,6 @@ export default {
 </script>
 ```
 Full example at [src/Home.vue](src/Home.vue)
-
-The ``$rawQuery`` gives access to the raw data, ``$query`` 
-is 
 
 ## Demo setup and run
 ```
@@ -134,8 +158,7 @@ yarn run build
 
 ### ``QuerySynchronizer`` plugin configuration
 
-During plugin registration, ``router`` must be passed in. Optionally
-a global ``debounce`` can be set, the default if unset is 100ms. 
+During plugin registration, ``router`` must be passed in.
  
 
 ```javascript
@@ -152,9 +175,9 @@ Vue.use(QuerySynchronizer, {
 
 Setting ``debug`` to ``true`` will log the parsed and serialized query parameters.
 
-### ``query``
+### Route ``meta`` definition
 
-The potential query parameters with data types are stored in route,
+The potential query parameters with data types are stored in route's
 ``meta.query`` property in the form of ``param_name``:``definition``.
 
 #### definition
