@@ -330,4 +330,4 @@ so that the next onInit picks them and uses them as default. The callback takes 
 
 ## API docs
 
-See [docs](./docs/index.html) 
+See [docs](https://oarepo.github.io/vue-query-synchronizer/) 
