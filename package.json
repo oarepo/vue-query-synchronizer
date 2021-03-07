@@ -8,8 +8,10 @@
     "serve": "vue-cli-service serve",
     "demo-build": "vue-cli-service build",
     "build": "rimraf dist; bili -c bili.config.js src/library/index.ts --plugins.vue --format esm --file-name vue-query-synchronizer.esm.js && cpy package.json README.md dist/ && cpy src/library/types.ts dist --rename=index.d.ts",
+    "doc": "node make_docs.ts",
     "lint": "vue-cli-service lint"
   },
+  "main": "vue-query-synchronizer.esm.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/oarepo/vue-query-synchronizer.git"
@@ -52,6 +54,7 @@
     "rimraf": "^3.0.2",
     "rollup-plugin-typescript2": "^0.30.0",
     "rollup-plugin-vue": "^6.0.0",
+    "typedoc": "^0.20.30",
     "typescript": "~3.9.3"
   },
   "eslintConfig": {

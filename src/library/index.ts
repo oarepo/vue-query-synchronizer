@@ -1,5 +1,5 @@
 import {reactive, watch} from 'vue'
-import {arraysMatch, isObject, queryFingerprint} from './utils'
+import {arraysMatch, queryFingerprint} from './utils'
 import {
     ArrayDatatype,
     BoolDatatype,
@@ -10,23 +10,27 @@ import {
 } from './datatypes'
 import {LocationQuery, RouteLocationNormalizedLoaded, Router} from "vue-router";
 import {
+    DataType,
     DataTypes,
-    QueryParameterDefinition,
+    DetailedFingerprint, GenericParsedQuery,
     ParsedQuery,
+    QueryParameterDefinition,
     QueryParameterDefinitions,
     QuerySettings,
-    DetailedFingerprint, DataType, TypedParsedQuery
+    TypedParsedQuery
 } from "./types";
 import {WatchStopHandle} from "@vue/runtime-core";
-import Vue from 'vue'
 
 export * from './datatypes'
 export * from './types'
 
-/*
+
+/**
  * convert parameter in "meta/query" from string representation to object representation
+ *
+ * @internal
  */
-export function parseParamDefinition<T>(
+function parseParamDefinition<T>(
     defOrString: QueryParameterDefinition<T> | string,
     datatypes: DataTypes): QueryParameterDefinition<T> {
     let def: QueryParameterDefinition<T>
@@ -343,16 +347,29 @@ const handler = {
 
 const proxiedQuery = new Proxy(_query.query, handler)
 
-export function useQuery<T>(): TypedParsedQuery<T> {
+/**
+ * The main composition API entrypoint. Returns a reactive Query object with parsed values
+ *
+ * @typeParam T The type of the returned query object. An interface defining query parameters and their types
+ * might be passed. If not a generic (untyped) interface is used.
+ */
+export function useQuery<T = GenericParsedQuery>(): TypedParsedQuery<T> {
     return proxiedQuery as TypedParsedQuery<T>
 }
 
+/**
+ * @internal
+ */
 export function useRawQuery() {
     return _query
 }
 
-export default {
-    install(app: any, {router, datatypes, debug}: { router: Router, datatypes?: DataTypes, debug?: boolean }) {
+const QuerySynchronizer = {
+    install(app: any, {
+        router,
+        datatypes,
+        debug
+    }: { router: Router, datatypes?: Array<DataType<any>>, debug?: boolean }) {
         setup(router, {
             'string': StringDatatype,
             'bool': BoolDatatype,
@@ -360,8 +377,23 @@ export default {
             'array': ArrayDatatype,
             'commaarray': CommaArrayDatatype,
             'spacearray': SpaceArrayDatatype,
-            ...(datatypes || {})
+            ...(datatypes || []).reduce((p, c) => {
+                p[c.name] = c
+                return p
+            }, {} as any)
         }, debug || false)
         app.config.globalProperties.$query = useQuery()
     }
 }
+
+/**
+ * Vue plugin. Usage:
+ * ```
+ * createApp(App).use(router).use(QuerySynchronizer, { router, debug: true })
+ * ```
+ *
+ * @param router application's router
+ * @param datatypes an optional array of custom (user-defined) datatypes
+ * @param debug if set to true, print library's debug messages
+ */
+export default QuerySynchronizer

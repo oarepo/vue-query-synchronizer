@@ -1,6 +1,9 @@
 import {arraysMatch} from './utils'
 import {DataType} from "./types";
 
+/**
+ * Parses URL parameter as string
+ */
 export const StringDatatype: DataType<string> = {
     name: 'string',
     parseDefault(value) {
@@ -27,6 +30,9 @@ export const StringDatatype: DataType<string> = {
     }
 }
 
+/**
+ * Interprets URL parameter as integer
+ */
 export const IntDatatype: DataType<number> = {
     name: 'int',
     parseDefault(value) {
@@ -54,6 +60,9 @@ export const IntDatatype: DataType<number> = {
     }
 }
 
+/**
+ * Interprets URL parameter as boolean. If the parameter is present the value is true, false otherwise
+ */
 export const BoolDatatype: DataType<boolean> = {
     name: 'bool',
     parseDefault(value) {
@@ -76,6 +85,9 @@ export const BoolDatatype: DataType<boolean> = {
     }
 }
 
+/**
+ * Interprets URL parameter as an array of strings, that is the parameter might be present multiple times
+ */
 export const ArrayDatatype: DataType<string[]> = {
     name: 'array',
     parseDefault(value) {
@@ -117,6 +129,10 @@ export const ArrayDatatype: DataType<string[]> = {
     }
 }
 
+/**
+ * Helper function to generate a new datatype that is an array of strings but serialized within one
+ * param=value url parameter with values separated by the given separator
+ */
 export function separatedArrayDatatype(separator: string) {
     const dt: DataType<string[]> = {
         name: `separated_array_${separator}`,
@@ -160,5 +176,12 @@ export function separatedArrayDatatype(separator: string) {
     return dt
 }
 
+/**
+ * parses param=v1,v2,v3,... into [v1,v2,v3] string array
+ */
 export const CommaArrayDatatype = separatedArrayDatatype(',')
+
+/**
+ * parses param=v1%20v2%20v3... into [v1,v2,v3] string array
+ */
 export const SpaceArrayDatatype = separatedArrayDatatype(' ')
