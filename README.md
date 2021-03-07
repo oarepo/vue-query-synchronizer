@@ -64,7 +64,7 @@ Vue.use(QuerySynchronizer, {
     router: router
 })
 ```
-See [src/main.js](src/main.js) for the whole file.
+See [src/main.ts](src/main.ts) for the whole file.
 
 ### Router configuration
 
@@ -87,7 +87,7 @@ const routes = [
 }
 ]
 ```
-Full example at [src/router.js](src/router.js)
+Full example at [src/router.ts](src/router.ts)
 
 ### Component
 
