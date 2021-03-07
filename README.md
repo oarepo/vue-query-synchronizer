@@ -1,6 +1,6 @@
 # @oarepo/vue-query-synchronizer
 
-This is Vue 3 implementation, for vue2 look at the [vue-2](https://github.com/oarepo/vue-query-synchronizer/tree/vue3) branch
+This is Vue 3 implementation, for vue2 look at the [vue-2](https://github.com/oarepo/vue-query-synchronizer/tree/vue-2) branch
 
 In browser applications, address bar should be the most important source
 of truth. When user performs data filtering, sorting, pagination, the url should
