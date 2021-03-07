@@ -1,4 +1,4 @@
-import {LocationQuery} from "vue-router";
+import {LocationQuery, Router} from "vue-router";
 
 /**
  * @internal
@@ -149,3 +149,8 @@ export interface QuerySettings {
 export interface DetailedFingerprint {
     [key: string]: string | null
 }
+
+
+export type NavigationOperation = 'replace' | 'push' | (
+    (query: ParsedQuery, router: Router) => 'push' | 'replace'
+    )

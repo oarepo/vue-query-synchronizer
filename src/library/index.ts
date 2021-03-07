@@ -12,7 +12,7 @@ import {LocationQuery, RouteLocationNormalizedLoaded, Router} from "vue-router";
 import {
     DataType,
     DataTypes,
-    DetailedFingerprint, GenericParsedQuery,
+    DetailedFingerprint, GenericParsedQuery, NavigationOperation,
     ParsedQuery,
     QueryParameterDefinition,
     QueryParameterDefinitions,
@@ -63,6 +63,8 @@ const _query = reactive({
 let router!: Router
 let datatypes!: DataTypes
 let debug = false
+let navigationOperation!: (query: ParsedQuery, router: Router) => 'push' | 'replace'
+
 let queryDefinition: QueryParameterDefinitions | null = null
 let querySettings: QuerySettings | null = null
 let fingerprint: string | null = null
@@ -231,10 +233,15 @@ function parseAndStoreQuery(query: LocationQuery, actualDetailedFingerprint: Det
     }
 }
 
-function setup(_router: Router, _datatypes: DataTypes, _debug: boolean) {
+function setup(_router: Router, _datatypes: DataTypes, _debug: boolean, _navigationOperation: NavigationOperation) {
     router = _router
     datatypes = _datatypes
     debug = _debug
+    if (_navigationOperation === 'push' || _navigationOperation === 'replace') {
+        navigationOperation = (() => _navigationOperation)
+    } else {
+        navigationOperation = _navigationOperation
+    }
 
     router.beforeEach((to, from) => {
         if (to.name !== from.name) {
@@ -275,7 +282,8 @@ function setup(_router: Router, _datatypes: DataTypes, _debug: boolean) {
             if (querySettings!.onChange) {
                 querySettings!.onChange(_query.rawQuery, _query.query)
             }
-            router.push({query: _query.rawQuery})
+            const op = navigationOperation(_query.query, router)
+            router[op]({query: _query.rawQuery})
         }
     )
 }
@@ -368,20 +376,27 @@ const QuerySynchronizer = {
     install(app: any, {
         router,
         datatypes,
-        debug
-    }: { router: Router, datatypes?: Array<DataType<any>>, debug?: boolean }) {
+        debug,
+        navigationOperation
+    }: {
+        router: Router,
+        datatypes?: Array<DataType<any>>,
+        debug?: boolean,
+        navigationOperation?: NavigationOperation
+    }) {
         setup(router, {
-            'string': StringDatatype,
-            'bool': BoolDatatype,
-            'int': IntDatatype,
-            'array': ArrayDatatype,
-            'commaarray': CommaArrayDatatype,
-            'spacearray': SpaceArrayDatatype,
-            ...(datatypes || []).reduce((p, c) => {
-                p[c.name] = c
-                return p
-            }, {} as any)
-        }, debug || false)
+                'string': StringDatatype,
+                'bool': BoolDatatype,
+                'int': IntDatatype,
+                'array': ArrayDatatype,
+                'commaarray': CommaArrayDatatype,
+                'spacearray': SpaceArrayDatatype,
+                ...(datatypes || []).reduce((p, c) => {
+                    p[c.name] = c
+                    return p
+                }, {} as any)
+            }, debug || false,
+            navigationOperation || 'push')
         app.config.globalProperties.$query = useQuery()
     }
 }

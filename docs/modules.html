@@ -2695,6 +2695,9 @@ img {
 			<a href="modules.html#genericparsedquery" class="tsd-kind-icon">Generic<wbr>Parsed<wbr>Query</a>
 		</li>
 		<li class=" tsd-kind-type-alias">
+			<a href="modules.html#navigationoperation" class="tsd-kind-icon">Navigation<wbr>Operation</a>
+		</li>
+		<li class=" tsd-kind-type-alias">
 			<a href="modules.html#parsedquerymixin" class="tsd-kind-icon">Parsed<wbr>Query<wbr>Mixin</a>
 		</li>
 		<li class=" tsd-kind-type-alias tsd-has-type-parameter">
@@ -2903,7 +2906,8 @@ img {
 <span style="color: #000000">    </span><span style="color: #001080">datatypes:</span><span style="color: #000000"> {</span>
 <span style="color: #000000">        </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #001080">handler</span>
 <span style="color: #000000">    },</span>
-<span style="color: #000000">    </span><span style="color: #001080">debug:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span>
+<span style="color: #000000">    </span><span style="color: #001080">debug:</span><span style="color: #000000"> </span><span style="color: #0000FF">false</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">navigationOperation</span>
 <span style="color: #000000">})</span>
 </code></pre>
 			<p>Setting <code>debug</code> to <code>true</code> will log the parsed and serialized query parameters.</p>
@@ -3043,6 +3047,10 @@ img {
 				<li><code>newQuery</code> is the new query that will be set to URL. Does not contain props with default values</li>
 				<li><code>query</code> contains the whole current query object with resolved default values</li>
 			</ul>
+			<a href="#api-docs" id="api-docs" style="color: inherit; text-decoration: none;">
+				<h2>API docs</h2>
+			</a>
+			<p>See <a href="./docs/index.html">docs</a> </p>
 		</div>
 		<section class="tsd-panel-group tsd-index-group">
 			<h2>Index</h2>
@@ -3060,6 +3068,7 @@ img {
 						<h3>Type aliases</h3>
 						<ul class="tsd-index-list">
 							<li class="tsd-kind-type-alias"><a href="modules.html#genericparsedquery" class="tsd-kind-icon">Generic<wbr>Parsed<wbr>Query</a></li>
+							<li class="tsd-kind-type-alias"><a href="modules.html#navigationoperation" class="tsd-kind-icon">Navigation<wbr>Operation</a></li>
 							<li class="tsd-kind-type-alias"><a href="modules.html#parsedquerymixin" class="tsd-kind-icon">Parsed<wbr>Query<wbr>Mixin</a></li>
 							<li class="tsd-kind-type-alias tsd-has-type-parameter"><a href="modules.html#typedparsedquery" class="tsd-kind-icon">Typed<wbr>Parsed<wbr>Query</a></li>
 						</ul>
@@ -3094,7 +3103,7 @@ img {
 				<div class="tsd-signature tsd-kind-icon">Generic<wbr>Parsed<wbr>Query<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{}</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/fa1ea46/src/library/types.ts#L119">types.ts:119</a></li>
+						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/8bc698a/src/library/types.ts#L119">types.ts:119</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-comment tsd-typography">
@@ -3112,12 +3121,22 @@ img {
 				</div>
 			</section>
 			<section class="tsd-panel tsd-member tsd-kind-type-alias">
+				<a name="navigationoperation" class="tsd-anchor"></a>
+				<h3>Navigation<wbr>Operation</h3>
+				<div class="tsd-signature tsd-kind-icon">Navigation<wbr>Operation<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;replace&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;push&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>query<span class="tsd-signature-symbol">: </span><a href="interfaces/parsedquery.html" class="tsd-signature-type" data-tsd-kind="Interface">ParsedQuery</a>, router<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Router</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">&quot;push&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;replace&quot;</span><span class="tsd-signature-symbol">)</span></div>
+				<aside class="tsd-sources">
+					<ul>
+						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/8bc698a/src/library/types.ts#L154">types.ts:154</a></li>
+					</ul>
+				</aside>
+			</section>
+			<section class="tsd-panel tsd-member tsd-kind-type-alias">
 				<a name="parsedquerymixin" class="tsd-anchor"></a>
 				<h3>Parsed<wbr>Query<wbr>Mixin</h3>
 				<div class="tsd-signature tsd-kind-icon">Parsed<wbr>Query<wbr>Mixin<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>addValue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>define<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>removeValue<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/fa1ea46/src/library/types.ts#L81">types.ts:81</a></li>
+						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/8bc698a/src/library/types.ts#L81">types.ts:81</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-comment tsd-typography">
@@ -3138,7 +3157,7 @@ img {
 								<li class="tsd-description">
 									<aside class="tsd-sources">
 										<ul>
-											<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/fa1ea46/src/library/types.ts#L99">types.ts:99</a></li>
+											<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/8bc698a/src/library/types.ts#L99">types.ts:99</a></li>
 										</ul>
 									</aside>
 									<div class="tsd-comment tsd-typography">
@@ -3180,7 +3199,7 @@ img {
 								<li class="tsd-description">
 									<aside class="tsd-sources">
 										<ul>
-											<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/fa1ea46/src/library/types.ts#L90">types.ts:90</a></li>
+											<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/8bc698a/src/library/types.ts#L90">types.ts:90</a></li>
 										</ul>
 									</aside>
 									<div class="tsd-comment tsd-typography">
@@ -3223,7 +3242,7 @@ img {
 								<li class="tsd-description">
 									<aside class="tsd-sources">
 										<ul>
-											<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/fa1ea46/src/library/types.ts#L108">types.ts:108</a></li>
+											<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/8bc698a/src/library/types.ts#L108">types.ts:108</a></li>
 										</ul>
 									</aside>
 									<div class="tsd-comment tsd-typography">
@@ -3265,7 +3284,7 @@ img {
 				<div class="tsd-signature tsd-kind-icon">Typed<wbr>Parsed<wbr>Query&lt;T&gt;<span class="tsd-signature-symbol">:</span> <a href="modules.html#parsedquerymixin" class="tsd-signature-type" data-tsd-kind="Type alias">ParsedQueryMixin</a><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-type">T</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/fa1ea46/src/library/types.ts#L133">types.ts:133</a></li>
+						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/8bc698a/src/library/types.ts#L133">types.ts:133</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-comment tsd-typography">
@@ -3290,7 +3309,7 @@ img {
 				<div class="tsd-signature tsd-kind-icon">Array<wbr>Datatype<span class="tsd-signature-symbol">:</span> <a href="interfaces/datatype.html" class="tsd-signature-type" data-tsd-kind="Interface">DataType</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = ...</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/fa1ea46/src/library/datatypes.ts#L91">datatypes.ts:91</a></li>
+						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/8bc698a/src/library/datatypes.ts#L91">datatypes.ts:91</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-comment tsd-typography">
@@ -3305,7 +3324,7 @@ img {
 				<div class="tsd-signature tsd-kind-icon">Bool<wbr>Datatype<span class="tsd-signature-symbol">:</span> <a href="interfaces/datatype.html" class="tsd-signature-type" data-tsd-kind="Interface">DataType</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = ...</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/fa1ea46/src/library/datatypes.ts#L66">datatypes.ts:66</a></li>
+						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/8bc698a/src/library/datatypes.ts#L66">datatypes.ts:66</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-comment tsd-typography">
@@ -3320,7 +3339,7 @@ img {
 				<div class="tsd-signature tsd-kind-icon">Comma<wbr>Array<wbr>Datatype<span class="tsd-signature-symbol">:</span> <a href="interfaces/datatype.html" class="tsd-signature-type" data-tsd-kind="Interface">DataType</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = ...</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/fa1ea46/src/library/datatypes.ts#L182">datatypes.ts:182</a></li>
+						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/8bc698a/src/library/datatypes.ts#L182">datatypes.ts:182</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-comment tsd-typography">
@@ -3335,7 +3354,7 @@ img {
 				<div class="tsd-signature tsd-kind-icon">Int<wbr>Datatype<span class="tsd-signature-symbol">:</span> <a href="interfaces/datatype.html" class="tsd-signature-type" data-tsd-kind="Interface">DataType</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = ...</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/fa1ea46/src/library/datatypes.ts#L36">datatypes.ts:36</a></li>
+						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/8bc698a/src/library/datatypes.ts#L36">datatypes.ts:36</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-comment tsd-typography">
@@ -3350,7 +3369,7 @@ img {
 				<div class="tsd-signature tsd-kind-icon">Space<wbr>Array<wbr>Datatype<span class="tsd-signature-symbol">:</span> <a href="interfaces/datatype.html" class="tsd-signature-type" data-tsd-kind="Interface">DataType</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = ...</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/fa1ea46/src/library/datatypes.ts#L187">datatypes.ts:187</a></li>
+						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/8bc698a/src/library/datatypes.ts#L187">datatypes.ts:187</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-comment tsd-typography">
@@ -3365,7 +3384,7 @@ img {
 				<div class="tsd-signature tsd-kind-icon">String<wbr>Datatype<span class="tsd-signature-symbol">:</span> <a href="interfaces/datatype.html" class="tsd-signature-type" data-tsd-kind="Interface">DataType</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = ...</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/fa1ea46/src/library/datatypes.ts#L7">datatypes.ts:7</a></li>
+						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/8bc698a/src/library/datatypes.ts#L7">datatypes.ts:7</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-comment tsd-typography">
@@ -3380,7 +3399,7 @@ img {
 				<div class="tsd-signature tsd-kind-icon">default<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>install<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> = ...</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/fa1ea46/src/library/index.ts#L367">index.ts:367</a></li>
+						<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/8bc698a/src/library/index.ts#L375">index.ts:375</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-comment tsd-typography">
@@ -3407,13 +3426,13 @@ img {
 						<li class="tsd-parameter">
 							<h5>install<span class="tsd-signature-symbol">: </span>function</h5>
 							<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-type-literal">
-								<li class="tsd-signature tsd-kind-icon">install<span class="tsd-signature-symbol">(</span>app<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, __namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>datatypes<span class="tsd-signature-symbol">?: </span><a href="interfaces/datatype.html" class="tsd-signature-type" data-tsd-kind="Interface">DataType</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>debug<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>router<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Router</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								<li class="tsd-signature tsd-kind-icon">install<span class="tsd-signature-symbol">(</span>app<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, __namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>datatypes<span class="tsd-signature-symbol">?: </span><a href="interfaces/datatype.html" class="tsd-signature-type" data-tsd-kind="Interface">DataType</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>debug<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>navigationOperation<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;replace&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;push&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>query<span class="tsd-signature-symbol">: </span><a href="interfaces/parsedquery.html" class="tsd-signature-type" data-tsd-kind="Interface">ParsedQuery</a>, router<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Router</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">&quot;replace&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;push&quot;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span>router<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Router</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 							</ul>
 							<ul class="tsd-descriptions">
 								<li class="tsd-description">
 									<aside class="tsd-sources">
 										<ul>
-											<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/fa1ea46/src/library/index.ts#L368">index.ts:368</a></li>
+											<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/8bc698a/src/library/index.ts#L376">index.ts:376</a></li>
 										</ul>
 									</aside>
 									<h4 class="tsd-parameters-title">Parameters</h4>
@@ -3422,13 +3441,16 @@ img {
 											<h5>app: <span class="tsd-signature-type">any</span></h5>
 										</li>
 										<li>
-											<h5>__namedParameters: <span class="tsd-signature-symbol">{ </span>datatypes<span class="tsd-signature-symbol">?: </span><a href="interfaces/datatype.html" class="tsd-signature-type" data-tsd-kind="Interface">DataType</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>debug<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>router<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Router</span><span class="tsd-signature-symbol"> }</span></h5>
+											<h5>__namedParameters: <span class="tsd-signature-symbol">{ </span>datatypes<span class="tsd-signature-symbol">?: </span><a href="interfaces/datatype.html" class="tsd-signature-type" data-tsd-kind="Interface">DataType</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>debug<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>navigationOperation<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;replace&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;push&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>query<span class="tsd-signature-symbol">: </span><a href="interfaces/parsedquery.html" class="tsd-signature-type" data-tsd-kind="Interface">ParsedQuery</a>, router<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Router</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">&quot;replace&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;push&quot;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span>router<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Router</span><span class="tsd-signature-symbol"> }</span></h5>
 											<ul class="tsd-parameters">
 												<li class="tsd-parameter">
 													<h5><span class="tsd-flag ts-flagOptional">Optional</span> datatypes<span class="tsd-signature-symbol">?: </span><a href="interfaces/datatype.html" class="tsd-signature-type" data-tsd-kind="Interface">DataType</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h5>
 												</li>
 												<li class="tsd-parameter">
 													<h5><span class="tsd-flag ts-flagOptional">Optional</span> debug<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+												</li>
+												<li class="tsd-parameter">
+													<h5><span class="tsd-flag ts-flagOptional">Optional</span> navigation<wbr>Operation<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;replace&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;push&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>query<span class="tsd-signature-symbol">: </span><a href="interfaces/parsedquery.html" class="tsd-signature-type" data-tsd-kind="Interface">ParsedQuery</a>, router<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Router</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">&quot;replace&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;push&quot;</span><span class="tsd-signature-symbol">)</span></h5>
 												</li>
 												<li class="tsd-parameter">
 													<h5>router<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Router</span></h5>
@@ -3456,7 +3478,7 @@ img {
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/fa1ea46/src/library/datatypes.ts#L136">datatypes.ts:136</a></li>
+								<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/8bc698a/src/library/datatypes.ts#L136">datatypes.ts:136</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -3485,7 +3507,7 @@ img {
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/fa1ea46/src/library/index.ts#L356">index.ts:356</a></li>
+								<li>Defined in <a href="https://github.com/oarepo/vue-query-synchronizer/blob/8bc698a/src/library/index.ts#L364">index.ts:364</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">

@@ -169,11 +169,17 @@ Vue.use(QuerySynchronizer, {
     datatypes: {
         name: handler
     },
-    debug: false
+    debug: false,
+    navigationOperation: 'push' | 'replace' | 
+            ((query, router) => 'push' | 'replace')
 })
 ```
 
 Setting ``debug`` to ``true`` will log the parsed and serialized query parameters.
+
+Navigation operation can be used to override the default operation 
+called on the router (push). Either method name (push, replace) might be
+be passed or a callable, that can decide which operation to perform.
 
 ### Route ``meta`` definition
 
