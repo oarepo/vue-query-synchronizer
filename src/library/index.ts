@@ -226,7 +226,8 @@ function parseAndStoreQuery(query: LocationQuery, actualDetailedFingerprint: Det
         }
         _query.query[key] = defVal
     }
-    _query.rawQuery = {...query}
+    _query.rawQuery = {}
+    Object.assign(_query.rawQuery, query)
 
     if (querySettings!.onLoad) {
         querySettings!.onLoad(_query.query)
@@ -384,18 +385,20 @@ const QuerySynchronizer = {
         debug?: boolean,
         navigationOperation?: NavigationOperation
     }) {
-        setup(router, {
-                'string': StringDatatype,
-                'bool': BoolDatatype,
-                'int': IntDatatype,
-                'array': ArrayDatatype,
-                'commaarray': CommaArrayDatatype,
-                'spacearray': SpaceArrayDatatype,
-                ...(datatypes || []).reduce((p, c) => {
-                    p[c.name] = c
-                    return p
-                }, {} as any)
-            }, debug || false,
+        const _datatypes: DataTypes = {
+            'string': StringDatatype,
+            'bool': BoolDatatype,
+            'int': IntDatatype,
+            'array': ArrayDatatype,
+            'commaarray': CommaArrayDatatype,
+            'spacearray': SpaceArrayDatatype
+        }
+        if (datatypes) {
+            (datatypes || []).forEach(c => {
+                _datatypes[c.name] = c
+            })
+        }
+        setup(router, _datatypes, debug || false,
             navigationOperation || 'push')
         app.config.globalProperties.$query = useQuery()
     }
