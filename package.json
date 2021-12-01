@@ -1,13 +1,13 @@
 {
   "name": "@oarepo/vue-query-synchronizer",
-  "version": "3.0.0a4",
+  "version": "3.0.0a5",
   "private": false,
   "license": "MIT",
   "description": "Browser vue-router query synchronization library",
   "scripts": {
     "serve": "vue-cli-service serve",
     "demo-build": "vue-cli-service build",
-    "build": "rimraf dist; bili -c bili.config.js src/library/index.ts --plugins.vue --format esm --file-name vue-query-synchronizer.esm.js && cpy package.json README.md dist/ && cpy dist/library/*.d.ts dist && rimraf dist/library",
+    "build": "rimraf dist; bili -c bili.config.js src/library/index.ts --plugins.vue --format esm --file-name vue-query-synchronizer.esm.js && cpy README.md dist/ && json -e 'this.peerDependencies = this.dependencies; delete this.dependencies; delete this.scripts; delete this.devDependencies' <package.json >dist/package.json && cpy dist/library/*.d.ts dist && rimraf dist/library",
     "doc": "node make_docs.ts",
     "lint": "vue-cli-service lint"
   },
@@ -51,11 +51,12 @@
     "cpy-cli": "^3.1.1",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^7.0.0-0",
+    "json": "^11.0.0",
     "rimraf": "^3.0.2",
     "rollup-plugin-typescript2": "^0.30.0",
     "rollup-plugin-vue": "^6.0.0",
     "typedoc": "^0.20.30",
-    "typescript": "~3.9.3"
+    "typescript": "^4.3.5"
   },
   "eslintConfig": {
     "root": true,
