@@ -8,7 +8,7 @@ import {
     SpaceArrayDatatype,
     StringDatatype
 } from './datatypes'
-import {LocationQuery, RouteLocationNormalizedLoaded, Router} from "vue-router";
+import {LocationQuery, RouteLocationNormalizedLoaded, Router} from 'vue-router';
 import {
     DataType,
     DataTypes,
@@ -18,8 +18,8 @@ import {
     QueryParameterDefinitions,
     QuerySettings,
     TypedParsedQuery
-} from "./types";
-import {WatchStopHandle} from "@vue/runtime-core";
+} from './types';
+import {WatchStopHandle} from '@vue/runtime-core';
 
 export * from './datatypes'
 export * from './types'
@@ -40,6 +40,11 @@ function parseParamDefinition<T>(
             splitted = ['string', splitted[0]]
         }
         const datatype = datatypes[splitted[0]]
+
+        if (!datatype) {
+            throw new Error(`No query datatype "${splitted[0]}"`);
+        }
+
         def = {
             datatype: datatype,
             defaultValue: datatype.parseDefault(splitted[1])
@@ -56,7 +61,7 @@ function parseParamDefinition<T>(
 const _query = reactive({
     query: {} as ParsedQuery,
     rawQuery: {} as LocationQuery,
-    enabled: true,
+    enabled: false,
     serializedId: 0
 })
 
@@ -122,6 +127,7 @@ function serializeChangedValue(key: string, value: any) {
 }
 
 function saveValueToRawQuery(key: string, value: string | string[]) {
+    dlog('save value to raw query', key, value);
     if (value === undefined) {
         if (key in _query.rawQuery) {
             delete _query.rawQuery[key]
@@ -142,6 +148,7 @@ function saveValueToRawQuery(key: string, value: string | string[]) {
     }
 
     if (!(key in _query.rawQuery)) {
+        dlog('value not in rawQuery, added');
         _query.rawQuery[key] = value
         _query.serializedId++
     } else {
@@ -161,8 +168,11 @@ function saveValueToRawQuery(key: string, value: string | string[]) {
             modified = true
         }
         if (modified) {
+            dlog('value in rawQuery, modified');
             _query.rawQuery[key] = value
             _query.serializedId++
+        } else {
+            dlog('value in rawQuery, not modified', _query.rawQuery[key]);
         }
     }
     dlog('Set to raw', key, value)
@@ -187,7 +197,7 @@ function clearWatchers() {
 function handleRouteChange(to: RouteLocationNormalizedLoaded) {
     fingerprint = null
     detailedFingerprint = {}
-    Object.keys(_query.query).forEach(function (key) {
+    Object.keys(_query.query).forEach(function(key) {
         delete _query.query[key]
     })
     queryDefinition = {}
@@ -195,8 +205,10 @@ function handleRouteChange(to: RouteLocationNormalizedLoaded) {
     clearWatchers()
 
     if (!prepareQuery(to)) {
+        dlog('No query meta on this route');
         _query.enabled = false
     } else {
+        dlog('Got query meta on this route');
         _query.enabled = true
     }
 }
@@ -245,6 +257,7 @@ function setup(_router: Router, _datatypes: DataTypes, _debug: boolean, _navigat
     }
 
     router.beforeEach((to, from) => {
+        dlog('beforeEach called', to.name, from.name);
         if (to.name !== from.name) {
             handleRouteChange(to)
         }
@@ -330,14 +343,14 @@ function removeValue<T>(key: string, value: T, datatype: DataType<T[]>) {
 }
 
 const handler = {
-    set: function (target: ParsedQuery, prop: string, value: any) {
+    set: function(target: ParsedQuery, prop: string, value: any) {
         if (!(prop in target)) {
             define(prop, StringDatatype, '')
         }
         target[prop] = value
         return true
     },
-    get: function (target: ParsedQuery, prop: string) {
+    get: function(target: ParsedQuery, prop: string) {
         if (prop === 'define') {
             return define
         }
@@ -372,6 +385,19 @@ export function useQuery<T = GenericParsedQuery>(): TypedParsedQuery<T> {
 export function useRawQuery() {
     return _query
 }
+
+export function watchQuery(fn: (...x: any[])=>any) {
+    watch(function() {
+        return _query.serializedId;
+    }, function() {
+        return fn;
+    });
+}
+
+export function queryWatchSource() {
+    return _query.serializedId;
+}
+
 
 const QuerySynchronizer = {
     install(app: any, {
@@ -415,3 +441,5 @@ const QuerySynchronizer = {
  * @param debug if set to true, print library's debug messages
  */
 export default QuerySynchronizer
+
+export { proxiedQuery as query }

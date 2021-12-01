@@ -1,6 +1,6 @@
 {
   "name": "@oarepo/vue-query-synchronizer",
-  "version": "3.0.0a5",
+  "version": "3.0.0a10",
   "private": false,
   "license": "MIT",
   "description": "Browser vue-router query synchronization library",
