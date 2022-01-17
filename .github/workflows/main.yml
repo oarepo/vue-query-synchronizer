@@ -1,0 +1,30 @@
+name: npmjs package
+on:
+  push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      # Setup .npmrc file to publish to npm
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '15.x'
+          registry-url: 'https://registry.npmjs.org'
+      - name: install
+        run: |
+          yarn install
+
+      - name: build
+        run: |
+          yarn build
+          ls -la dist
+          cat dist/package.json
+
+      - name: deploy
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PASSWORD }}
+        run: |
+          bash publish.sh
