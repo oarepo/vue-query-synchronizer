@@ -209,7 +209,7 @@ const SpaceArrayDatatype = separatedArrayDatatype(' ')
 
 const QuerySynchronizer = {
 
-    install(Vue, { router, datatypes, debug }) {
+    install(Vue, { router, datatypes, debug, navigationOperation }) {
         datatypes = {
             'string': StringDatatype,
             'bool': BoolDatatype,
@@ -230,6 +230,9 @@ const QuerySynchronizer = {
                 d[1].code = d[0]
             })
         }
+        
+        // selected router navigation method
+        const navMethod = navigationOperation || 'push'
 
         const _vue = new Vue({
             data: {
@@ -409,7 +412,8 @@ const QuerySynchronizer = {
             if (Object.keys(existingQuery).length === Object.keys(newQuery).length) {
                 for (const k of Object.keys(newQuery)) {
                     const val = newQuery[k] !== null ? newQuery[k].toString() : null
-                    if (val !== existingQuery[k].toString()) {
+                    const existingVal = existingQuery[k] !== null && existingQuery[k] !== undefined ? existingQuery[k].toString() : null
+                    if (val !== existingVal) {
                         if (debug) {
                             console.log('Setting router from query: modified property', k, val, existingQuery[k])
                         }
@@ -429,7 +433,7 @@ const QuerySynchronizer = {
             if (_vue.settings.onChange) {
                 _vue.settings.onChange(newQuery, query, _vue)
             }
-            router.push({ query: newQuery })
+            router[navMethod]({ query: newQuery })
         })
     }
 }
