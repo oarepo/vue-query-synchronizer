@@ -1,6 +1,5 @@
 name: npmjs package
-on:
-  push
+on: push
 
 jobs:
   build:
@@ -10,7 +9,7 @@ jobs:
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v2
         with:
-          node-version: '15.x'
+          node-version: '17.x'
           registry-url: 'https://registry.npmjs.org'
       - name: install
         run: |
